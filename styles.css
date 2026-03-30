@@ -63,6 +63,21 @@ footer {
     flex-wrap: wrap;
 }
 
+.team-content {
+    text-align: center;
+}
+
+.member {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+svg {
+    fill: #485935;
+    size: 20%;
+}
+
 @media screen and (min-width: 1024px) {
     nav ul{
         flex-direction: row;
