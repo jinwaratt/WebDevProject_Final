@@ -71,11 +71,18 @@ footer {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-evenly;
+    margin: 40px;
 }
 
-svg {
-    fill: #485935;
-    size: 20%;
+.member img {
+    width: 200px;
+}
+
+#each-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 @media screen and (min-width: 1024px) {
