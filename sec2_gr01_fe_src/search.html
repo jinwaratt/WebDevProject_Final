@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>Search</title>
+    <title>Search – ARAIMAIRU Solar Solution</title>
 </head>
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
@@ -51,6 +51,7 @@
 
         <!-- Product grid -->
         <div class="product-grid" id="productGrid">
+
             <a href="productDetails.html" class="product-card" data-name="Rooftop Solar Panel" data-type="Rooftop" data-price="8500">
                 <div class="product-img-box">
                     <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Rooftop Solar Panel">
@@ -68,7 +69,7 @@
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> Floating Solar Panel</p>
-                    <p><strong>Detail:</strong> 550W Bifacial</p>
+                    <p><strong>Detail:</strong> 1kW Bifacial Float</p>
                     <p><strong>Price:</strong> ฿12,900</p>
                 </div>
             </a>
@@ -79,29 +80,29 @@
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> Ground Mount System</p>
-                    <p><strong>Detail:</strong> 5kW Complete Set</p>
+                    <p><strong>Detail:</strong> 600W Complete Set</p>
                     <p><strong>Price:</strong> ฿25,000</p>
                 </div>
             </a>
 
             <a href="productDetails.html" class="product-card" data-name="EV Charger Installation" data-type="Services" data-price="18000">
                 <div class="product-img-box">
-                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="EV Charger">
+                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="EV Charger Installation">
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> EV Charger Installation</p>
-                    <p><strong>Detail:</strong> 7.4kW Home Charger</p>
+                    <p><strong>Detail:</strong> Full Setup & Config</p>
                     <p><strong>Price:</strong> ฿18,000</p>
                 </div>
             </a>
 
-            <a href="productDetails.html" class="product-card" data-name="Smart Home System" data-type="Services" data-price="35000">
+            <a href="productDetails.html" class="product-card" data-name="Smart Home System" data-type="Rooftop" data-price="35000">
                 <div class="product-img-box">
-                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Smart Home">
+                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Smart Home System">
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> Smart Home System</p>
-                    <p><strong>Detail:</strong> Full Automation</p>
+                    <p><strong>Detail:</strong> 300W Monocrystalline</p>
                     <p><strong>Price:</strong> ฿35,000</p>
                 </div>
             </a>
@@ -112,32 +113,33 @@
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> Battery Storage</p>
-                    <p><strong>Detail:</strong> 10kWh LiFePO4</p>
+                    <p><strong>Detail:</strong> Annual Maintenance</p>
                     <p><strong>Price:</strong> ฿45,000</p>
                 </div>
             </a>
 
-            <a href="productDetails.html" class="product-card" data-name="Rooftop Mounting Kit" data-type="Rooftop" data-price="5500">
+            <a href="productDetails.html" class="product-card" data-name="Rooftop Mounting Kit" data-type="Floating" data-price="5500">
                 <div class="product-img-box">
-                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Mounting Kit">
+                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Rooftop Mounting Kit">
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> Rooftop Mounting Kit</p>
-                    <p><strong>Detail:</strong> Aluminium Rails Set</p>
+                    <p><strong>Detail:</strong> 500W Bifacial Pro</p>
                     <p><strong>Price:</strong> ฿5,500</p>
                 </div>
             </a>
 
             <a href="productDetails.html" class="product-card" data-name="Solar Inverter" data-type="Ground" data-price="18000">
                 <div class="product-img-box">
-                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Inverter">
+                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Solar Inverter">
                 </div>
                 <div class="product-info">
                     <p><strong>Product:</strong> Solar Inverter</p>
-                    <p><strong>Detail:</strong> 5kW String Inverter</p>
+                    <p><strong>Detail:</strong> 10kW Farm Bundle</p>
                     <p><strong>Price:</strong> ฿18,000</p>
                 </div>
             </a>
+
         </div>
 
         <p id="noResults" style="display:none; text-align:center; color:#485935; margin-top:40px;">No products found.</p>
@@ -159,6 +161,15 @@
             dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
         }
 
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dd = document.getElementById('searchDropdown');
+            const btn = document.querySelector('.search-dropdown-btn');
+            if (!dd.contains(e.target) && e.target !== btn) {
+                dd.style.display = 'none';
+            }
+        });
+
         function applyFilters() {
             activeFilters.name = document.getElementById('searchInput').value.toLowerCase();
             activeFilters.types = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
@@ -167,7 +178,14 @@
 
             const cards = document.querySelectorAll('.product-card');
             let visible = 0;
-            cards.forEach(card => {
+
+            // Sort cards alphabetically by product name
+            const grid = document.getElementById('productGrid');
+            const cardArray = Array.from(cards);
+            cardArray.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+            cardArray.forEach(card => grid.appendChild(card));
+
+            cardArray.forEach(card => {
                 const name = card.dataset.name.toLowerCase();
                 const type = card.dataset.type;
                 const price = parseFloat(card.dataset.price);
