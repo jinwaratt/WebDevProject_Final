@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Product Management</title>
+</head>
+<body>
+    <header><h1>ARAIMAIRU Solar Solution</h1></header>
+
+    <nav>
+        <ul>
+            <li><a href="search.html" class="active">Search</a></li>
+            <li><a href="login.html">Admin Logout</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Search bar + Add Product button -->
+        <div class="search-section">
+            <div class="admin-search-row">
+                <div class="search-bar">
+                    <button class="search-dropdown-btn" onclick="toggleDropdown()">&#9660; </button>
+                    <input type="text" id="searchInput" placeholder="Product Name*" oninput="applyFilters()">
+                    <button class="search-icon-btn" onclick="applyFilters()">&#128269;</button>
+                </div>
+                <a href="add-product.html" class="btn-add-product">Add Product +</a>
+            </div>
+
+            <!-- Dropdown advanced filters -->
+            <div class="search-dropdown" id="searchDropdown">
+                <div class="dropdown-row">
+                    <span class="dropdown-label">Product Type:</span>
+                    <label><input type="checkbox" value="Services" onchange="applyFilters()"> Services</label>
+                    <label><input type="checkbox" value="Rooftop" onchange="applyFilters()"> Rooftop</label>
+                    <label><input type="checkbox" value="Floating" onchange="applyFilters()"> Floating</label>
+                    <label><input type="checkbox" value="Ground" onchange="applyFilters()"> Ground</label>
+                </div>
+                <div class="dropdown-row">
+                    <span class="dropdown-label">Price Range:</span>
+                    <input type="number" id="priceMin" placeholder="Min" oninput="applyFilters()">
+                    <span> - </span>
+                    <input type="number" id="priceMax" placeholder="Max" oninput="applyFilters()">
+                </div>
+            </div>
+
+            <!-- Active filter tags -->
+            <div class="filter-tags" id="filterTags"></div>
+        </div>
+
+        <!-- Product grid with edit icons -->
+        <div class="product-grid" id="productGrid">
+
+            <div class="product-card admin-card" data-name="Rooftop Solar Panel" data-type="Rooftop" data-price="8500">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Rooftop Solar Panel">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Rooftop Solar Panel</p>
+                    <p><strong>Detail:</strong> 400W Monocrystalline</p>
+                    <p><strong>Price:</strong> ฿8,500</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="Floating Solar Panel" data-type="Floating" data-price="12900">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Floating Solar Panel">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Floating Solar Panel</p>
+                    <p><strong>Detail:</strong> 550W Bifacial</p>
+                    <p><strong>Price:</strong> ฿12,900</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="Ground Mount System" data-type="Ground" data-price="25000">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Ground Mount System">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Ground Mount System</p>
+                    <p><strong>Detail:</strong> 5kW Complete Set</p>
+                    <p><strong>Price:</strong> ฿25,000</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="EV Charger Installation" data-type="Services" data-price="18000">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="EV Charger">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> EV Charger Installation</p>
+                    <p><strong>Detail:</strong> 7.4kW Home Charger</p>
+                    <p><strong>Price:</strong> ฿18,000</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="Smart Home System" data-type="Services" data-price="35000">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Smart Home">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Smart Home System</p>
+                    <p><strong>Detail:</strong> Full Automation</p>
+                    <p><strong>Price:</strong> ฿35,000</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="Battery Storage" data-type="Services" data-price="45000">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Battery Storage">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Battery Storage</p>
+                    <p><strong>Detail:</strong> 10kWh LiFePO4</p>
+                    <p><strong>Price:</strong> ฿45,000</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="Rooftop Mounting Kit" data-type="Rooftop" data-price="5500">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Mounting Kit">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Rooftop Mounting Kit</p>
+                    <p><strong>Detail:</strong> Aluminium Rails Set</p>
+                    <p><strong>Price:</strong> ฿5,500</p>
+                </div>
+            </div>
+
+            <div class="product-card admin-card" data-name="Solar Inverter" data-type="Ground" data-price="18000">
+                <div class="admin-edit-icon">
+                    <a href="edit-product.html" title="Edit">&#9998;</a>
+                </div>
+                <div class="product-img-box">
+                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Inverter">
+                </div>
+                <div class="product-info">
+                    <p><strong>Product:</strong> Solar Inverter</p>
+                    <p><strong>Detail:</strong> 5kW String Inverter</p>
+                    <p><strong>Price:</strong> ฿18,000</p>
+                </div>
+            </div>
+
+        </div>
+        <p id="noResults" style="display:none; text-align:center; color:#485935; margin-top:40px;">No products found.</p>
+    </main>
+
+    <footer>
+        <h3>Contact us</h3>
+        <section class="footer-content">
+            <p>Email: ARAIMAIRUSolarSolution@gmail.com</p>
+            <p>Tel: 099-999-9999</p>
+        </section>
+    </footer>
+
+    <script>
+        let activeFilters = { name: '', types: [], minPrice: '', maxPrice: '' };
+
+        function toggleDropdown() {
+            const dd = document.getElementById('searchDropdown');
+            dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function applyFilters() {
+            activeFilters.name = document.getElementById('searchInput').value.toLowerCase();
+            activeFilters.types = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
+            activeFilters.minPrice = document.getElementById('priceMin').value;
+            activeFilters.maxPrice = document.getElementById('priceMax').value;
+
+            const cards = document.querySelectorAll('.product-card');
+            let visible = 0;
+            cards.forEach(card => {
+                const name = card.dataset.name.toLowerCase();
+                const type = card.dataset.type;
+                const price = parseFloat(card.dataset.price);
+                const matchName = !activeFilters.name || name.includes(activeFilters.name);
+                const matchType = activeFilters.types.length === 0 || activeFilters.types.includes(type);
+                const matchMin = !activeFilters.minPrice || price >= parseFloat(activeFilters.minPrice);
+                const matchMax = !activeFilters.maxPrice || price <= parseFloat(activeFilters.maxPrice);
+                if (matchName && matchType && matchMin && matchMax) {
+                    card.style.display = 'block'; visible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
+            renderTags();
+        }
+
+        function renderTags() {
+            const container = document.getElementById('filterTags');
+            container.innerHTML = '';
+            if (activeFilters.name) {
+                container.appendChild(makeTag('Product Name', activeFilters.name, () => {
+                    document.getElementById('searchInput').value = ''; applyFilters();
+                }));
+            }
+            activeFilters.types.forEach(t => {
+                container.appendChild(makeTag('Product Type', t, () => {
+                    document.querySelectorAll('.search-dropdown input[type=checkbox]').forEach(cb => { if (cb.value === t) cb.checked = false; });
+                    applyFilters();
+                }));
+            });
+            if (activeFilters.minPrice || activeFilters.maxPrice) {
+                const label = `฿${activeFilters.minPrice || '0'} - ฿${activeFilters.maxPrice || '∞'}`;
+                container.appendChild(makeTag('Price Range', label, () => {
+                    document.getElementById('priceMin').value = '';
+                    document.getElementById('priceMax').value = '';
+                    applyFilters();
+                }));
+            }
+        }
+
+        function makeTag(category, value, onRemove) {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `<span class="tag-label">${category}</span><span class="tag-value">${value}</span><button class="tag-remove" title="Remove">&#10005;</button>`;
+            tag.querySelector('.tag-remove').addEventListener('click', onRemove);
+            return tag;
+        }
+    </script>
+</body>
+</html>
