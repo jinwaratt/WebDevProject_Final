@@ -634,3 +634,244 @@ footer h3 {
         grid-template-columns: 1fr;
     }
 }
+
+/* ── ADMIN SHARED ── */
+.admin-search-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+ 
+.admin-search-row .search-bar {
+    flex: 1;
+}
+ 
+.btn-add-product {
+    background-color: #485935;
+    color: #e2dacc;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+}
+ 
+.btn-add-product:hover {
+    background-color: #2d3a1e;
+}
+ 
+.admin-card {
+    position: relative;
+}
+ 
+.admin-edit-icon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+}
+ 
+.admin-edit-icon a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #ffffff;
+    border: 1.5px solid #c9bfa9;
+    border-radius: 6px;
+    color: #485935;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+ 
+.admin-edit-icon a:hover {
+    background: #e2dacc;
+    border-color: #485935;
+}
+ 
+/* ── ADMIN FORM (Add / Edit) ── */
+.admin-form-wrapper {
+    max-width: 800px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+ 
+.admin-form-title {
+    color: #485935;
+    font-size: 1.4rem;
+    margin-bottom: 24px;
+}
+ 
+.edit-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+ 
+.edit-form-header .admin-form-title {
+    margin-bottom: 0;
+}
+ 
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 36px;
+    align-items: start;
+}
+ 
+.admin-form-left,
+.admin-form-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+ 
+/* Image upload box */
+.img-upload-box {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 2px dashed #c9bfa9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #f9f7f3;
+    overflow: hidden;
+}
+ 
+.img-upload-box:hover {
+    border-color: #485935;
+    background: #f0ece3;
+}
+ 
+.upload-plus {
+    font-size: 2.5rem;
+    color: #c9bfa9;
+    line-height: 1;
+}
+ 
+/* Form fields */
+.form-group {
+    margin-bottom: 16px;
+}
+ 
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: #485935;
+    margin-bottom: 5px;
+}
+ 
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #c9bfa9;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #f9f7f3;
+    color: #2d3a1e;
+    outline: none;
+    box-sizing: border-box;
+    resize: vertical;
+}
+ 
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #485935;
+    background: #ffffff;
+}
+ 
+.admin-select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #c9bfa9;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #f9f7f3;
+    color: #2d3a1e;
+    outline: none;
+    cursor: pointer;
+}
+ 
+.admin-select:focus {
+    border-color: #485935;
+}
+ 
+/* Form action buttons */
+.admin-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+ 
+.btn-add-submit {
+    background-color: #485935;
+    color: #e2dacc;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    position: static;
+}
+ 
+.btn-add-submit:hover {
+    background-color: #2d3a1e;
+}
+ 
+.btn-save {
+    background-color: #485935;
+    color: #e2dacc;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    position: static;
+}
+ 
+.btn-save:hover {
+    background-color: #2d3a1e;
+}
+ 
+.btn-delete {
+    background-color: #c0392b;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    position: static;
+}
+ 
+.btn-delete:hover {
+    background-color: #962d22;
+}
+ 
+@media screen and (max-width: 700px) {
+    .admin-form-grid {
+        grid-template-columns: 1fr;
+    }
+    .admin-search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
