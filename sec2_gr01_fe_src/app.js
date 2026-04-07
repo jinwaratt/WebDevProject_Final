@@ -15,19 +15,19 @@ app.use(router)
 
 // Routing
 router.get('/', (req, res) =>{
-    res.sendFile(path.join(`${__dirname}/home-page.html`))
+    res.sendFile(path.join(`${__dirname}/html/home-page.html`))
 })
 
 router.get('/login', (req, res) =>{
-    res.sendFile(path.join(`${__dirname}/login.html`))
+    res.sendFile(path.join(`${__dirname}/html/login.html`))
 })
 
 router.get('/search', (req, res) =>{
-    res.sendFile(path.join(`${__dirname}/search.html`))
+    res.sendFile(path.join(`${__dirname}/html/search.html`))
 })
 
 router.get('/team', (req, res) =>{
-    res.sendFile(path.join(`${__dirname}/team-page.html`))
+    res.sendFile(path.join(`${__dirname}/html/team-page.html`))
 })
 
 // Handle other unspecific paths
