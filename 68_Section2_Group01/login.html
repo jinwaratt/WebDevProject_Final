@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Admin Login</title>
+</head>
+<body>
+    <header><h1>ARAIMAIRU Solar Solution</h1></header>
+
+    <!-- nav bar -->
+    <nav>
+        <ul>
+            <li><a href="home-page.html">Home</a></li>
+            <li><a href="search.html">Search</a></li>
+            <li><a href="team-page.html">Our Team</a></li>
+            <li><a href="login.html" class="active">Admin Login</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <div class="login-wrapper">
+            <div class="login-card">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                <div class="login-buttons">
+                    <button type="button" class="btn-clear" onclick="clearForm()">Clear</button>
+                    <button type="button" class="btn-login" onclick="handleLogin()">Login</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <h3>Contact us</h3>
+        <section class="footer-content">
+            <p>Email: ARAIMAIRUSolarSolution@gmail.com</p>
+            <p>Tel: 099-999-9999</p>
+        </section>
+    </footer>
+
+    <script>
+        function clearForm() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (!username || !password) {
+                alert('Please enter username and password.');
+                return;
+            }
+            window.location.href = 'search.html';
+        }
+    </script>
+</body>
+</html>
