@@ -10,8 +10,8 @@ const app = express()
 
 // Router object
 const router = express.Router()
+app.use('/', express.static(path.join(__dirname, 'public')))
 app.use(router)
-// app.use('/', express.static(path.join(__dirname, 'public')))
 
 // Routing
 router.get('/', (req, res) =>{
