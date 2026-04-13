@@ -1,12 +1,15 @@
-const express = require("express")
-const mysql = require("mysql2")
-const path = require('path')
-const dotenv = require("dotenv")
+const express  = require("express")
+const mysql    = require("mysql2")
+const path     = require('path')
+const dotenv   = require("dotenv")
+const multer   = require('multer')
+const axios    = require('axios')
+const FormData = require('form-data')
 dotenv.config()
 
 let dbConn = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.DB_USER,
+    host:     process.env.HOST,
+    user:     process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME
 })
@@ -23,6 +26,40 @@ const router = express.Router()
 app.use(router)
 router.use(express.json())
 router.use(express.urlencoded({extended: true}))
+
+// Store file in memory so we can send it as base64 to ImgBB
+const upload = multer({ storage: multer.memoryStorage() })
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+// Helper: upload image buffer to ImgBB, returns the image URL
+async function uploadToImgBB(fileBuffer) {
+    const base64Image = fileBuffer.toString('base64')
+
+    const form = new FormData()
+    form.append('key',   process.env.IMGBB_API_KEY)
+    form.append('image', base64Image)
+
+    const response = await axios.post('https://api.imgbb.com/1/upload', form, {
+        headers: form.getHeaders()
+    })
+
+    return response.data.data.url  // permanent display URL
+}
+
+// Helper: write a ProductLog entry
+// Action codes: 1=Added, 2=Updated, 3=Deleted
+function writeLog(accountID, productID, action) {
+    const sql = `INSERT INTO ProductLog (AccountID, ProductID, action, dateAndTime) VALUES (?, ?, ?, NOW())
+                 ON DUPLICATE KEY UPDATE action = VALUES(action), dateAndTime = NOW()`
+    dbConn.query(sql, [accountID, productID, action], (err) => {
+        if (err) console.error('ProductLog error:', err.message)
+    })
+}
+
 
 // ============================================================
 // 1. PRODUCT SEARCH & DETAILS
@@ -78,121 +115,131 @@ router.get('/products/:id', (req, res) => {
 // ============================================================
 // 2. PRODUCT MANAGEMENT (Admin)
 // ============================================================
-// All admin routes require AccountID in the request body/header
-// for ProductLog. Action codes: 1=Added, 2=Updated, 3=Deleted
-
-// Helper: write a ProductLog entry
-function writeLog(accountID, productID, action) {
-    const sql = `INSERT INTO ProductLog (AccountID, ProductID, action, dateAndTime) VALUES (?, ?, ?, NOW())
-                 ON DUPLICATE KEY UPDATE action = VALUES(action), dateAndTime = NOW()`
-    dbConn.query(sql, [accountID, productID, action], (err) => {
-        if (err) console.error('ProductLog error:', err.message)
-    })
-}
-
-// POST /products  — insert a new product
-// Body: ProductID, name, type, price, description, image_url, status, accountID
 
 // -------------------------------------------------------
-// Testing Insert a new Product (success case)
+// Testing Insert a new Product with image upload (success case)
 // method: POST
 // URL: http://localhost:3000/products
-// body: raw JSON
-// {
-//   "ProductID": "PRD00021",
-//   "name": "Growatt SPF 5000",
-//   "type": "Inverter",
-//   "price": 27500,
-//   "description": "5kW Hybrid Solar Inverter with built-in MPPT controller",
-//   "image_url": "https://example.com/PRD00021.png",
-//   "status": 1,
-//   "accountID": "ACC00001"
-// }
+// body: form-data  ← must be form-data (NOT raw JSON) when sending an image
+//   ProductID  : PRD00021
+//   name       : Growatt SPF 5000
+//   type       : Inverter
+//   price      : 27500
+//   description: 5kW Hybrid Solar Inverter with built-in MPPT controller
+//   status     : 1
+//   accountID  : ACC00001
+//   image      : (select a .jpg/.png file)
 //
 // Testing Insert a new Product (missing required fields)
 // method: POST
 // URL: http://localhost:3000/products
-// body: raw JSON
-// {
-//   "ProductID": "PRD00022",
-//   "description": "Missing name, type, price and accountID",
-//   "status": 1
-// }
+// body: form-data
+//   ProductID  : PRD00023
+//   description: Missing name, type, price and accountID
 // -------------------------------------------------------
 
-router.post('/products', (req, res) => {
-    const { ProductID, name, type, price, description, image_url, status, accountID } = req.body
+// POST /products  — insert a new product (with optional ImgBB image upload)
+// Body: form-data with fields: ProductID, name, type, price, description, status, accountID
+// File: image (optional) — any jpg/png file
+router.post('/products', upload.single('image'), async (req, res) => {
+    const { ProductID, name, type, price, description, status, accountID } = req.body
 
     if (!ProductID || !name || !type || price == null || !accountID) {
         return res.status(400).json({ success: false, message: 'ProductID, name, type, price, and accountID are required' })
     }
 
-    const sql = `INSERT INTO Product (ProductID, name, type, price, description, image_url, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`
-    const params = [ProductID, name, type, price, description || null, image_url || null, status ?? 1]
+    try {
+        // Upload image to ImgBB if a file was attached, otherwise null
+        let image_url = null
+        if (req.file) {
+            image_url = await uploadToImgBB(req.file.buffer)
+        }
 
-    dbConn.query(sql, params, (err) => {
-        if (err) return res.status(500).json({ success: false, message: err.message })
-        writeLog(accountID, ProductID, 1)
-        res.status(201).json({ success: true, message: 'Product created successfully', ProductID })
-    })
+        const sql = `INSERT INTO Product (ProductID, name, type, price, description, image_url, status)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)`
+        const params = [ProductID, name, type, price, description || null, image_url, status ?? 1]
+
+        dbConn.query(sql, params, (err) => {
+            if (err) return res.status(500).json({ success: false, message: err.message })
+            writeLog(accountID, ProductID, 1)
+            res.status(201).json({ success: true, message: 'Product created successfully', ProductID, image_url })
+        })
+
+    } catch (err) {
+        // Catches ImgBB network errors or API rejections (e.g. invalid key, bad file)
+        res.status(500).json({ success: false, message: 'Image upload failed: ' + err.message })
+    }
 })
 
-// PUT /products/:id  — update an existing product
-// Body: any updatable fields + accountID
-
 // -------------------------------------------------------
-// Testing Update an existing Product (success case - update price and description)
+// Testing Update a Product with a new image (success case)
 // method: PUT
 // URL: http://localhost:3000/products/PRD00021
-// body: raw JSON
-// {
-//   "price": 29000,
-//   "description": "5kW Hybrid Solar Inverter with built-in MPPT controller - Updated model",
-//   "accountID": "ACC00002"
-// }
+// body: form-data  ← must be form-data (NOT raw JSON) when sending an image
+//   price      : 29000
+//   description: 5kW Hybrid Solar Inverter with built-in MPPT controller - Updated model
+//   accountID  : ACC00002
+//   image      : (select a new .jpg/.png file)
 //
-// Testing Update an existing Product (product not found)
+// Testing Update a Product without changing the image (success case)
+// method: PUT
+// URL: http://localhost:3000/products/PRD00021
+// body: form-data
+//   price     : 31000
+//   accountID : ACC00001
+//   (no image field — existing image_url is kept as-is)
+//
+// Testing Update a Product (product not found)
 // method: PUT
 // URL: http://localhost:3000/products/PRD99999
-// body: raw JSON
-// {
-//   "price": 15000,
-//   "accountID": "ACC00001"
-// }
+// body: form-data
+//   price     : 15000
+//   accountID : ACC00001
 // -------------------------------------------------------
 
-router.put('/products/:id', (req, res) => {
-    const { name, type, price, description, image_url, status, accountID } = req.body
+// PUT /products/:id  — update an existing product (with optional ImgBB image upload)
+// Body: form-data with any updatable fields + accountID
+// File: image (optional) — if provided, uploads to ImgBB and replaces the old image_url
+router.put('/products/:id', upload.single('image'), async (req, res) => {
+    const { name, type, price, description, status, accountID } = req.body
     const { id } = req.params
 
     if (!accountID) return res.status(400).json({ success: false, message: 'accountID is required' })
 
-    const fields = []
-    const params = []
+    try {
+        const fields = []
+        const params = []
 
-    if (name      !== undefined) { fields.push('name = ?');        params.push(name) }
-    if (type      !== undefined) { fields.push('type = ?');        params.push(type) }
-    if (price     !== undefined) { fields.push('price = ?');       params.push(price) }
-    if (description !== undefined) { fields.push('description = ?'); params.push(description) }
-    if (image_url !== undefined) { fields.push('image_url = ?');   params.push(image_url) }
-    if (status    !== undefined) { fields.push('status = ?');      params.push(status) }
+        if (name        !== undefined) { fields.push('name = ?');        params.push(name) }
+        if (type        !== undefined) { fields.push('type = ?');        params.push(type) }
+        if (price       !== undefined) { fields.push('price = ?');       params.push(price) }
+        if (description !== undefined) { fields.push('description = ?'); params.push(description) }
+        if (status      !== undefined) { fields.push('status = ?');      params.push(status) }
 
-    if (fields.length === 0) return res.status(400).json({ success: false, message: 'No fields to update' })
+        // Only upload and replace image_url if a new file was attached
+        if (req.file) {
+            const image_url = await uploadToImgBB(req.file.buffer)
+            fields.push('image_url = ?')
+            params.push(image_url)
+        }
 
-    params.push(id)
-    const sql = `UPDATE Product SET ${fields.join(', ')} WHERE ProductID = ?`
+        if (fields.length === 0) return res.status(400).json({ success: false, message: 'No fields to update' })
 
-    dbConn.query(sql, params, (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: err.message })
-        if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Product not found' })
-        writeLog(accountID, id, 2)
-        res.json({ success: true, message: 'Product updated successfully' })
-    })
+        params.push(id)
+        const sql = `UPDATE Product SET ${fields.join(', ')} WHERE ProductID = ?`
+
+        dbConn.query(sql, params, (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: err.message })
+            if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Product not found' })
+            writeLog(accountID, id, 2)
+            res.json({ success: true, message: 'Product updated successfully' })
+        })
+
+    } catch (err) {
+        // Catches ImgBB network errors or API rejections (e.g. invalid key, bad file)
+        res.status(500).json({ success: false, message: 'Image upload failed: ' + err.message })
+    }
 })
-
-// DELETE /products/:id  — soft-delete (sets status = 0)
-// Body: accountID
 
 // -------------------------------------------------------
 // Testing Delete (deactivate) a Product (success case)
@@ -211,6 +258,8 @@ router.put('/products/:id', (req, res) => {
 // }
 // -------------------------------------------------------
 
+// DELETE /products/:id  — soft-delete (sets status = 0)
+// Body: raw JSON with accountID
 router.delete('/products/:id', (req, res) => {
     const { accountID } = req.body
     const { id } = req.params
@@ -231,8 +280,38 @@ router.delete('/products/:id', (req, res) => {
 // ============================================================
 // 3. AUTHENTICATION - LOGIN
 // ============================================================
+
+// -------------------------------------------------------
+// Testing Login (success case)
+// method: POST
+// URL: http://localhost:3000/login
+// body: raw JSON
+// {
+//   "username": "somchai_super",
+//   "password": "Passw0rd1!"
+// }
+//
+// Testing Login (wrong password)
+// method: POST
+// URL: http://localhost:3000/login
+// body: raw JSON
+// {
+//   "username": "somchai_super",
+//   "password": "wrongpassword"
+// }
+//
+// Testing Login (username not found)
+// method: POST
+// URL: http://localhost:3000/login
+// body: raw JSON
+// {
+//   "username": "ghost_user",
+//   "password": "Passw0rd1!"
+// }
+// -------------------------------------------------------
+
 // POST /login
-// Body: username, password
+// Body: raw JSON with username, password
 router.post('/login', (req, res) => {
     const { username, password } = req.body
 
@@ -296,6 +375,7 @@ router.post('/login', (req, res) => {
         })
     })
 })
+
 
 app.listen(process.env.PORT, function(){
     console.log(`Server listening on port: ${process.env.PORT}`)
