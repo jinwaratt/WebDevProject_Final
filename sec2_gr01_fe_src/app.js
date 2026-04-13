@@ -30,6 +30,22 @@ router.get('/team', (req, res) =>{
     res.sendFile(path.join(`${__dirname}/html/team-page.html`))
 })
 
+router.get('/add-product', (req, res) =>{
+    res.sendFile(path.join(`${__dirname}/html/add-product.html`))
+})
+
+router.get('/edit-product', (req, res) =>{
+    res.sendFile(path.join(`${__dirname}/html/edit-product.html`))
+})
+
+router.get('/product-details', (req, res) =>{
+    res.sendFile(path.join(`${__dirname}/html/product-details.html`))
+})
+
+router.get('/product-management', (req, res) =>{
+    res.sendFile(path.join(`${__dirname}/html/product-management.html`))
+})
+
 // Handle other unspecific paths
 router.use((req, res, next)=>{
     console.log("404: Invalid accessed")
