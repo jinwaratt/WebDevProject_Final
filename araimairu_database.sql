@@ -47,7 +47,7 @@ CREATE TABLE `Product` (
     `price` DECIMAL(15,2) NOT NULL,
     `description` NVARCHAR(150) NULL,
     `image_url` VARCHAR(255) NULL,
-    `status` BIT NOT NULL,
+    `status` TINYINT(1) NOT NULL,
     PRIMARY KEY (`ProductID`)
 );
 
@@ -98,9 +98,9 @@ INSERT INTO `Product` (`ProductID`, `name`, `type`, `price`, `description`, `ima
 ('PRD00001', 'SunPower Maxeon 3', 'Rooftop', 12500.00, '400W High Efficiency Monocrystalline Solar Panel', 'https://i.ibb.co/LDj5rDmx/PRD00001.png', 1),
 ('PRD00002', 'Canadian Solar 350W', 'Rooftop', 8500.00, '350W Poly/Mono Hybrid Panel for residential roofs', 'https://i.ibb.co/whYfKrFf/PRD00002.png', 1),
 ('PRD00003', 'Huawei SUN2000', 'Rooftop', 25000.00, '5kW Smart String Inverter with active arcing protection', 'https://i.ibb.co/QvpJJNJG/PRD00003.png', 1),
-('PRD00004', 'SolarEdge HD-Wave', 'Rooftop', 28000.00, 'Single Phase Inverter engineered for high performance', 'https://i.ibb.co/kV3gKnXz/PRD00004.png', 1),
-('PRD00005', 'Tesla Powerwall 2', 'Rooftop', 250000.00, '13.5kWh Home Battery Storage System for backup power', 'https://i.ibb.co/LD3bZ8xW/PRD00005.png', 1),
-('PRD00006', 'LG Chem RESU10H', 'Rooftop', 180000.00, '9.8kWh High Voltage Battery, compact and powerful', 'https://i.ibb.co/npy7pxQ/PRD00006.png', 0),
+('PRD00004', 'SolarEdge HD-Wave', 'Rooftop', 28000.00, 'Single Phase Inverter engineered for high performance', 'https://i.ibb.co/kV3gKnXz/PRD00004.png', 0),
+('PRD00005', 'Tesla Powerwall 2', 'Rooftop', 250000.00, '13.5kWh Home Battery Storage System for backup power', 'https://i.ibb.co/LD3bZ8xW/PRD00005.png', 0),
+('PRD00006', 'LG Chem RESU10H', 'Rooftop', 180000.00, '9.8kWh High Voltage Battery, compact and powerful', 'https://i.ibb.co/npy7pxQ/PRD00006.png', 1),
 ('PRD00007', 'Wallbox Pulsar Plus', 'Services', 32000.00, '22kW Smart EV Charger with Bluetooth and Wi-Fi', 'https://i.ibb.co/Jjsb2qsq/PRD00007.png', 1),
 ('PRD00008', 'ABB Terra AC Wallbox', 'Services', 35000.00, '11kW AC Wallbox for reliable electric vehicle charging', 'https://i.ibb.co/wN0CN7j3/PRD00008.png', 1),
 ('PRD00009', 'Google Nest Hub', 'Services', 3500.00, 'Smart Home Control Center to monitor energy ecosystem', 'https://i.ibb.co/B5fK3Yy7/PRD00009.png', 1),
@@ -114,10 +114,18 @@ INSERT INTO `Product` (`ProductID`, `name`, `type`, `price`, `description`, `ima
 ('PRD00017', 'JuiceBox 40 Smart', 'Services', 28000.00, '9.6kW Smart EV Charger with WiFi connectivity and app control', 'https://i.ibb.co/TNZNy9h/PRD00017.png', 1),
 ('PRD00018', 'Echo Show 10', 'Services', 8900.00, 'Smart display for home automation and energy monitoring', 'https://i.ibb.co/KxwBVvLL/PRD00018.png', 1),
 ('PRD00019', 'Ecobee Smart Thermostat', 'Services', 7500.00, 'Smart thermostat to optimize home temperature and save energy', 'https://i.ibb.co/M5Zqvr19/PRD00019.png', 1),
-('PRD00020', 'Enphase IQ Battery 10', 'Rooftop', 220000.00, '10.08kWh All-in-one AC-coupled storage system for backup', 'https://i.ibb.co/qM1cXzR8/PRD00020.png', 0);
+('PRD00020', 'Enphase IQ Battery 10', 'Rooftop', 220000.00, '10.08kWh All-in-one AC-coupled storage system for backup', 'https://i.ibb.co/qM1cXzR8/PRD00020.png', 1)
+('PRD00021', 'Sungrow Floating System', 'Floating', 15000.00, 'Complete floating pontoon system for inland water bodies', 'https://i.ibb.co/99By2qbx/PRD00021.png', 1),
+('PRD00022', 'Ciel & Terre Hydrelio', 'Floating', 12500.00, 'Modular floating solar structure with high wind resistance', 'https://i.ibb.co/6RHsT4Tg/PRD00022.png', 1),
+('PRD00023', 'Longi Hi-MO 5 Bifacial', 'Floating', 10500.00, '540W Bifacial panel optimized for water reflection', 'https://i.ibb.co/ksQzL2Tr/PRD00023.png', 1),
+('PRD00024', 'Seaflex Mooring System', 'Floating', 8000.00, 'Elastic mooring solution for secure floating solar arrays', 'https://i.ibb.co/spgrQGbM/PRD00024.png', 1),
+('PRD00025', 'Unirac Ground Mount', 'Ground', 9500.00, 'Heavy-duty ground mount racking system for large arrays', 'https://i.ibb.co/zTmQxny4/PRD00025.png', 1),
+('PRD00026', 'IronRidge SGA', 'Ground', 8900.00, 'Scalable ground mount architecture for residential and commercial', 'https://i.ibb.co/ccscD1y0/PRD00026.png', 1),
+('PRD00027', 'Q CELLS Q.PEAK DUO', 'Ground', 11000.00, '480W Bifacial solar panel ideal for ground installations', 'https://i.ibb.co/CpN0BgdQ/PRD00027.png', 1),
+('PRD00028', 'Nextracker Single-Axis', 'Ground', 45000.00, 'Smart single-axis solar tracker system for maximum ground yield', 'https://i.ibb.co/fYdP4mkC/PRD00028.png', 1);
 
 -- 4. Insert Data into ProductLog Table
--- (Action 1 indicates "Added")
+-- (Action 1=added, 2=edited, 3=deleted)
 INSERT INTO `ProductLog` (`AccountID`, `ProductID`, `action`, `dateAndTime`) VALUES
 ('ACC00001', 'PRD00001', 1, '2024-02-15 09:00:00'),
 ('ACC00002', 'PRD00002', 1, '2024-02-16 10:30:00'),
@@ -138,4 +146,12 @@ INSERT INTO `ProductLog` (`AccountID`, `ProductID`, `action`, `dateAndTime`) VAL
 ('ACC00007', 'PRD00017', 1, '2024-03-02 16:10:00'),
 ('ACC00008', 'PRD00018', 1, '2024-03-03 09:30:00'),
 ('ACC00009', 'PRD00019', 1, '2024-03-04 11:00:00'),
-('ACC00010', 'PRD00020', 1, '2024-03-05 14:45:00');
+('ACC00010', 'PRD00020', 1, '2024-03-05 14:45:00'),
+('ACC00001', 'PRD00021', 1, '2024-03-06 10:00:00'),
+('ACC00002', 'PRD00022', 1, '2024-03-07 11:30:00'),
+('ACC00003', 'PRD00023', 1, '2024-03-08 14:15:00'),
+('ACC00004', 'PRD00024', 1, '2024-03-09 09:45:00'),
+('ACC00005', 'PRD00025', 1, '2024-03-10 13:20:00'),
+('ACC00006', 'PRD00026', 1, '2024-03-11 15:50:00'),
+('ACC00007', 'PRD00027', 1, '2024-03-12 10:10:00'),
+('ACC00008', 'PRD00028', 1, '2024-03-13 16:30:00');
