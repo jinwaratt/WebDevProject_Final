@@ -4,7 +4,6 @@ const path     = require('path')
 const dotenv   = require("dotenv")
 const multer   = require('multer')
 const axios    = require('axios')
-const FormData = require('form-data')
 dotenv.config()
 
 let dbConn = mysql.createConnection({
@@ -39,12 +38,12 @@ const upload = multer({ storage: multer.memoryStorage() })
 async function uploadToImgBB(fileBuffer) {
     const base64Image = fileBuffer.toString('base64')
 
-    const form = new FormData()
-    form.append('key',   process.env.IMGBB_API_KEY)
-    form.append('image', base64Image)
+    const params = new URLSearchParams()
+    params.append('key',   process.env.IMGBB_API_KEY)
+    params.append('image', base64Image)
 
-    const response = await axios.post('https://api.imgbb.com/1/upload', form, {
-        headers: form.getHeaders()
+    const response = await axios.post('https://api.imgbb.com/1/upload', params.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
 
     return response.data.data.url  // permanent display URL
@@ -157,7 +156,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
 
         const sql = `INSERT INTO Product (ProductID, name, type, price, description, image_url, status)
                      VALUES (?, ?, ?, ?, ?, ?, ?)`
-        const params = [ProductID, name, type, price, description || null, image_url, status ?? 1]
+        const params = [ProductID, name, type, price, description || null, image_url, parseInt(status ?? 1)]
 
         dbConn.query(sql, params, (err) => {
             if (err) return res.status(500).json({ success: false, message: err.message })
@@ -214,7 +213,7 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
         if (type        !== undefined) { fields.push('type = ?');        params.push(type) }
         if (price       !== undefined) { fields.push('price = ?');       params.push(price) }
         if (description !== undefined) { fields.push('description = ?'); params.push(description) }
-        if (status      !== undefined) { fields.push('status = ?');      params.push(status) }
+        if (status      !== undefined) { fields.push('status = ?');      params.push(parseInt(status)) }
 
         // Only upload and replace image_url if a new file was attached
         if (req.file) {

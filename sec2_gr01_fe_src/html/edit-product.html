@@ -11,7 +11,7 @@
 
     <nav>
         <ul>
-            <li><a href="/search">Search</a></li>
+            <li><a href="/product-management">Search</a></li>
             <li><a href="#" onclick="handleLogout()">Admin Logout</a></li>
         </ul>
     </nav>
@@ -81,8 +81,8 @@
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status" class="admin-select">
-                            <option value="1" ${p.status ? 'selected' : ''}>Available</option>
-                            <option value="0" ${!p.status ? 'selected' : ''}>Unavailable</option>
+                            <option value="1" ${Number(p.status) === 1 ? 'selected' : ''}>Available</option>
+                            <option value="0" ${Number(p.status) !== 1 ? 'selected' : ''}>Unavailable</option>
                         </select>
                     </div>
 
