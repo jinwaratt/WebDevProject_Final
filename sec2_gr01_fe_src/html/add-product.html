@@ -11,8 +11,8 @@
 
     <nav>
         <ul>
-            <li><a href="search.html">Search</a></li>
-            <li><a href="login.html">Admin Logout</a></li>
+            <li><a href="/search">Search</a></li>
+            <li><a href="#" onclick="handleLogout()">Admin Logout</a></li>
         </ul>
     </nav>
 
@@ -32,14 +32,14 @@
                     </div>
 
                     <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
-                        <span class="upload-plus">+</span>
+                        <span class="upload-plus" id="uploadPlus">+</span>
                         <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="previewImage(event)">
                         <img id="imgPreview" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:6px;">
                     </div>
 
                     <div class="form-group" style="margin-top: 12px;">
                         <label for="productId">ProductID</label>
-                        <input type="text" id="productId" name="productId" placeholder="e.g. P00001">
+                        <input type="text" id="productId" name="productId" placeholder="e.g. PRD00021">
                     </div>
                 </div>
 
@@ -68,6 +68,8 @@
                         <textarea id="description" name="description" rows="4" placeholder="Product description..."></textarea>
                     </div>
 
+                    <p id="statusMsg" style="display:none; margin-top:8px;"></p>
+
                     <div class="admin-form-actions">
                         <button type="button" class="btn-add-submit" onclick="submitProduct()">Add Product +</button>
                     </div>
@@ -85,28 +87,75 @@
     </footer>
 
     <script>
+        const API_BASE = 'http://localhost:3000';
+
+        // Guard: must be logged in
+        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+        if (!user) window.location.href = '/login';
+
+        function handleLogout() {
+            sessionStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
         function previewImage(event) {
-            const preview = document.getElementById('imgPreview');
-            const plus = document.querySelector('.upload-plus');
-            const file = event.target.files[0];
+            const preview  = document.getElementById('imgPreview');
+            const plus     = document.getElementById('uploadPlus');
+            const file     = event.target.files[0];
             if (file) {
-                preview.src = URL.createObjectURL(file);
+                preview.src          = URL.createObjectURL(file);
                 preview.style.display = 'block';
-                plus.style.display = 'none';
+                plus.style.display   = 'none';
             }
         }
 
-        function submitProduct() {
-            const title = document.getElementById('title').value.trim();
-            const price = document.getElementById('price').value.trim();
-            const type = document.getElementById('type').value;
-            const productId = document.getElementById('productId').value.trim();
+        async function submitProduct() {
+            const title       = document.getElementById('title').value.trim();
+            const price       = document.getElementById('price').value.trim();
+            const type        = document.getElementById('type').value;
+            const productId   = document.getElementById('productId').value.trim();
+            const status      = document.getElementById('status').value;
+            const description = document.getElementById('description').value.trim();
+            const imgFile     = document.getElementById('imgInput').files[0];
+            const statusMsg   = document.getElementById('statusMsg');
+
             if (!title || !price || !type || !productId) {
-                alert('Please fill in all required fields.');
+                statusMsg.textContent = 'Please fill in all required fields.';
+                statusMsg.style.color = 'red';
+                statusMsg.style.display = 'block';
                 return;
             }
-            alert('Product added successfully!');
-            window.location.href = 'product-management.html';
+
+            // Build multipart/form-data (required for image upload)
+            const formData = new FormData();
+            formData.append('ProductID',   productId);
+            formData.append('name',        title);
+            formData.append('type',        type);
+            formData.append('price',       price);
+            formData.append('description', description);
+            formData.append('status',      status);
+            formData.append('accountID',   user.AccountID);
+            if (imgFile) formData.append('image', imgFile);
+
+            statusMsg.textContent    = 'Saving...';
+            statusMsg.style.color    = '#485935';
+            statusMsg.style.display  = 'block';
+
+            try {
+                const res  = await fetch(`${API_BASE}/products`, { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('Product added successfully!');
+                    window.location.href = '/product-management';
+                } else {
+                    statusMsg.textContent = data.message || 'Failed to add product.';
+                    statusMsg.style.color = 'red';
+                }
+            } catch (err) {
+                statusMsg.textContent = 'Cannot connect to server. Please try again.';
+                statusMsg.style.color = 'red';
+            }
         }
     </script>
 </body>
