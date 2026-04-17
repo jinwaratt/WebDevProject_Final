@@ -114,7 +114,7 @@ INSERT INTO `Product` (`ProductID`, `name`, `type`, `price`, `description`, `ima
 ('PRD00017', 'JuiceBox 40 Smart', 'Services', 28000.00, '9.6kW Smart EV Charger with WiFi connectivity and app control', 'https://i.ibb.co/TNZNy9h/PRD00017.png', 1),
 ('PRD00018', 'Echo Show 10', 'Services', 8900.00, 'Smart display for home automation and energy monitoring', 'https://i.ibb.co/KxwBVvLL/PRD00018.png', 1),
 ('PRD00019', 'Ecobee Smart Thermostat', 'Services', 7500.00, 'Smart thermostat to optimize home temperature and save energy', 'https://i.ibb.co/M5Zqvr19/PRD00019.png', 1),
-('PRD00020', 'Enphase IQ Battery 10', 'Rooftop', 220000.00, '10.08kWh All-in-one AC-coupled storage system for backup', 'https://i.ibb.co/qM1cXzR8/PRD00020.png', 1)
+('PRD00020', 'Enphase IQ Battery 10', 'Rooftop', 220000.00, '10.08kWh All-in-one AC-coupled storage system for backup', 'https://i.ibb.co/qM1cXzR8/PRD00020.png', 1),
 ('PRD00021', 'Sungrow Floating System', 'Floating', 15000.00, 'Complete floating pontoon system for inland water bodies', 'https://i.ibb.co/99By2qbx/PRD00021.png', 1),
 ('PRD00022', 'Ciel & Terre Hydrelio', 'Floating', 12500.00, 'Modular floating solar structure with high wind resistance', 'https://i.ibb.co/6RHsT4Tg/PRD00022.png', 1),
 ('PRD00023', 'Longi Hi-MO 5 Bifacial', 'Floating', 10500.00, '540W Bifacial panel optimized for water reflection', 'https://i.ibb.co/ksQzL2Tr/PRD00023.png', 1),
