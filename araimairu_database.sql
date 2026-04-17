@@ -46,8 +46,8 @@ CREATE TABLE `Product` (
     `type` VARCHAR(30) NOT NULL,
     `price` DECIMAL(15,2) NOT NULL,
     `description` NVARCHAR(150) NULL,
-    `image_url` VARCHAR(255) NULL,
-    `status` BIT NOT NULL,
+    `image_url` VARCHAR(500) NULL,
+    `status` TINYINT(1) NOT NULL,
     PRIMARY KEY (`ProductID`)
 );
 

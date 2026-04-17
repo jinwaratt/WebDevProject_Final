@@ -5,13 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <title>Product Management</title>
+    <style>
+        /* ── Unavailable product card (admin view) ── */
+        .product-card.unavailable .product-img-box img {
+            opacity: 0.45;
+        }
+        .product-img-wrapper {
+            position: relative;
+        }
+        .unavailable-badge {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(80, 40, 20, 0.72);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .product-card.unavailable .unavailable-badge {
+            display: block;
+        }
+        .product-card.unavailable .product-info {
+            opacity: 0.6;
+        }
+    </style>
 </head>
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
     <nav>
         <ul>
-            <li><a href="/product-management" class="active">Search</a></li>
+            <li><a href="/search" class="active">Search</a></li>
             <li><a href="#" onclick="handleLogout()">Admin Logout</a></li>
         </ul>
     </nav>
@@ -90,10 +122,10 @@
             const types    = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
 
             const params = new URLSearchParams();
-            if (name)     params.append('name', name);
+            if (name)         params.append('name', name);
             if (types.length) params.append('type', types.join(','));
-            if (minPrice) params.append('minPrice', minPrice);
-            if (maxPrice) params.append('maxPrice', maxPrice);
+            if (minPrice)     params.append('minPrice', minPrice);
+            if (maxPrice)     params.append('maxPrice', maxPrice);
 
             const grid = document.getElementById('productGrid');
             grid.innerHTML = '<p style="text-align:center; color:#485935;">Loading...</p>';
@@ -119,21 +151,24 @@
             }
             noResults.style.display = 'none';
 
-            grid.innerHTML = products.map(p => `
-                <div class="product-card admin-card">
+            grid.innerHTML = products.map(p => {
+                const available = p.status == 1;
+                return `
+                <div class="product-card admin-card${available ? '' : ' unavailable'}">
                     <div class="admin-edit-icon">
                         <a href="/edit-product?id=${p.ProductID}" title="Edit">&#9998;</a>
                     </div>
-                    <div class="product-img-box">
+                    <div class="product-img-wrapper product-img-box">
                         <img src="${p.image_url || '/images/profile-pic.svg'}" alt="${p.name}">
+                        <span class="unavailable-badge">Unavailable</span>
                     </div>
                     <div class="product-info">
                         <p><strong>Product:</strong> ${p.name}</p>
                         <p><strong>Type:</strong> ${p.type}</p>
                         <p><strong>Price:</strong> ฿${Number(p.price).toLocaleString()}</p>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         function renderTags(name, types, minPrice, maxPrice) {
