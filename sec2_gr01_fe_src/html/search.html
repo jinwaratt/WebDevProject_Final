@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <title>Search – ARAIMAIRU Solar Solution</title>
+    <style>
+        /* ── Unavailable product card ── */
+        .product-card.unavailable .product-img-box img {
+            opacity: 0.45;
+        }
+        .product-img-wrapper {
+            position: relative;
+        }
+        .unavailable-badge {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(80, 40, 20, 0.72);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .product-card.unavailable .unavailable-badge {
+            display: block;
+        }
+        .product-card.unavailable .product-info {
+            opacity: 0.6;
+        }
+    </style>
 </head>
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
@@ -80,10 +112,10 @@
             const types    = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
 
             const params = new URLSearchParams();
-            if (name)     params.append('name', name);
+            if (name)         params.append('name', name);
             if (types.length) params.append('type', types.join(','));
-            if (minPrice) params.append('minPrice', minPrice);
-            if (maxPrice) params.append('maxPrice', maxPrice);
+            if (minPrice)     params.append('minPrice', minPrice);
+            if (maxPrice)     params.append('maxPrice', maxPrice);
 
             const grid = document.getElementById('productGrid');
             grid.innerHTML = '<p style="text-align:center; color:#485935;">Loading...</p>';
@@ -91,7 +123,6 @@
             try {
                 const res  = await fetch(`${API_BASE}/products?${params.toString()}`);
                 const data = await res.json();
-
                 renderProducts(data.data || []);
                 renderTags(name, types, minPrice, maxPrice);
             } catch (err) {
@@ -110,18 +141,21 @@
             }
             noResults.style.display = 'none';
 
-            grid.innerHTML = products.map(p => `
-                <a href="/product-details?id=${p.ProductID}" class="product-card">
-                    <div class="product-img-box">
+            grid.innerHTML = products.map(p => {
+                const available = p.status == 1;
+                return `
+                <a href="/product-details?id=${p.ProductID}" class="product-card${available ? '' : ' unavailable'}">
+                    <div class="product-img-wrapper product-img-box">
                         <img src="${p.image_url || '/images/profile-pic.svg'}" alt="${p.name}">
+                        <span class="unavailable-badge">Unavailable</span>
                     </div>
                     <div class="product-info">
                         <p><strong>Product:</strong> ${p.name}</p>
                         <p><strong>Type:</strong> ${p.type}</p>
                         <p><strong>Price:</strong> ฿${Number(p.price).toLocaleString()}</p>
                     </div>
-                </a>
-            `).join('');
+                </a>`;
+            }).join('');
         }
 
         function renderTags(name, types, minPrice, maxPrice) {
@@ -149,7 +183,6 @@
             return tag;
         }
 
-        // Load on page open
         fetchProducts();
     </script>
 </body>

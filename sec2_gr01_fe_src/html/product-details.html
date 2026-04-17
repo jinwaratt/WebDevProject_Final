@@ -5,6 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles.css">
     <title>Product Details</title>
+    <style>
+        /* ── Unavailable banner ── */
+        .unavailable-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f5ede4;
+            border: 1.5px solid #c97b3a;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin-bottom: 18px;
+            color: #7a3b0e;
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+        .unavailable-banner .banner-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        /* Fade the image when unavailable */
+        .details-img-box.faded img {
+            opacity: 0.45;
+        }
+        .details-img-box {
+            position: relative;
+        }
+        .details-img-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            align-items: center;
+            justify-content: center;
+            background: rgba(80, 40, 20, 0.35);
+            border-radius: 7px;
+        }
+        .details-img-overlay span {
+            background: rgba(80, 40, 20, 0.75);
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 7px 22px;
+            border-radius: 24px;
+        }
+        .details-img-box.faded .details-img-overlay {
+            display: flex;
+        }
+    </style>
 </head>
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
@@ -55,11 +104,19 @@
                 }
 
                 const p = data.data;
+                const available = p.status == 1;
+
                 wrapper.innerHTML = `
-                    <div class="details-img-box">
+                    <div class="details-img-box${available ? '' : ' faded'}">
                         <img src="${p.image_url || '/images/profile-pic.svg'}" alt="${p.name}">
+                        <div class="details-img-overlay"><span>Unavailable</span></div>
                     </div>
                     <div class="details-info">
+                        ${!available ? `
+                        <div class="unavailable-banner">
+                            <span class="banner-icon">&#9888;</span>
+                            <span>This product is currently <strong>unavailable</strong> and cannot be ordered at this time.</span>
+                        </div>` : ''}
                         <div class="details-fields">
                             <div class="detail-row">
                                 <span class="detail-label">Title :</span>
@@ -76,6 +133,12 @@
                             <div class="detail-row">
                                 <span class="detail-label">Price :</span>
                                 <span class="detail-value">฿${Number(p.price).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Status :</span>
+                                <span class="detail-value" style="color:${available ? '#3a7d2c' : '#c97b3a'}; font-weight:600;">
+                                    ${available ? 'Available' : 'Unavailable'}
+                                </span>
                             </div>
                         </div>
                         <div class="details-actions">

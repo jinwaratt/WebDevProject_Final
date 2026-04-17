@@ -40,12 +40,13 @@ async function uploadToImgBB(fileBuffer) {
     const base64Image = fileBuffer.toString('base64')
 
     const form = new FormData()
-    form.append('key',   process.env.IMGBB_API_KEY)
     form.append('image', base64Image)
 
-    const response = await axios.post('https://api.imgbb.com/1/upload', form, {
-        headers: form.getHeaders()
-    })
+    const response = await axios.post(
+        `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+        form,
+        { headers: form.getHeaders() }
+    )
 
     return response.data.data.url  // permanent display URL
 }
@@ -67,10 +68,11 @@ function writeLog(accountID, productID, action) {
 
 // GET /products  — no criteria → all, with criteria → filtered
 // Query params: name, type (comma-separated), minPrice, maxPrice
+// Returns ALL products; frontend handles unavailable visual distinction
 router.get('/products', (req, res) => {
     const { name, type, minPrice, maxPrice } = req.query
 
-    let sql = `SELECT * FROM Product WHERE status = 1`
+    let sql = `SELECT * FROM Product WHERE 1=1`
     const params = []
 
     if (name) {
@@ -152,12 +154,16 @@ router.post('/products', upload.single('image'), async (req, res) => {
         // Upload image to ImgBB if a file was attached, otherwise null
         let image_url = null
         if (req.file) {
-            image_url = await uploadToImgBB(req.file.buffer)
+            try {
+                image_url = await uploadToImgBB(req.file.buffer)
+            } catch (imgErr) {
+                console.error('ImgBB upload failed (product will be saved without image):', imgErr.message)
+            }
         }
 
         const sql = `INSERT INTO Product (ProductID, name, type, price, description, image_url, status)
                      VALUES (?, ?, ?, ?, ?, ?, ?)`
-        const params = [ProductID, name, type, price, description || null, image_url, status ?? 1]
+        const params = [ProductID, name, type, price, description || null, image_url, parseInt(status ?? 1)]
 
         dbConn.query(sql, params, (err) => {
             if (err) return res.status(500).json({ success: false, message: err.message })
@@ -166,8 +172,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
         })
 
     } catch (err) {
-        // Catches ImgBB network errors or API rejections (e.g. invalid key, bad file)
-        res.status(500).json({ success: false, message: 'Image upload failed: ' + err.message })
+        res.status(500).json({ success: false, message: 'Failed to create product: ' + err.message })
     }
 })
 
@@ -214,13 +219,17 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
         if (type        !== undefined) { fields.push('type = ?');        params.push(type) }
         if (price       !== undefined) { fields.push('price = ?');       params.push(price) }
         if (description !== undefined) { fields.push('description = ?'); params.push(description) }
-        if (status      !== undefined) { fields.push('status = ?');      params.push(status) }
+        if (status      !== undefined) { fields.push('status = ?');      params.push(parseInt(status)) }
 
         // Only upload and replace image_url if a new file was attached
         if (req.file) {
-            const image_url = await uploadToImgBB(req.file.buffer)
-            fields.push('image_url = ?')
-            params.push(image_url)
+            try {
+                const image_url = await uploadToImgBB(req.file.buffer)
+                fields.push('image_url = ?')
+                params.push(image_url)
+            } catch (imgErr) {
+                console.error('ImgBB upload failed (product will be updated without new image):', imgErr.message)
+            }
         }
 
         if (fields.length === 0) return res.status(400).json({ success: false, message: 'No fields to update' })
