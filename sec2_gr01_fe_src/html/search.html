@@ -9,7 +9,6 @@
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
-    <!-- nav bar -->
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
@@ -20,128 +19,35 @@
     </nav>
 
     <main>
-        <!-- Search bar -->
         <div class="search-section">
             <div class="search-bar">
                 <button class="search-dropdown-btn" onclick="toggleDropdown()" title="Advanced Search">&#9660; </button>
-                <input type="text" id="searchInput" placeholder="Product Name*" oninput="applyFilters()">
-                <button class="search-icon-btn" onclick="applyFilters()">&#128269;</button>
+                <input type="text" id="searchInput" placeholder="Product Name*" oninput="debounceSearch()">
+                <button class="search-icon-btn" onclick="fetchProducts()">&#128269;</button>
             </div>
 
-            <!-- Dropdown advanced filters -->
             <div class="search-dropdown" id="searchDropdown">
                 <div class="dropdown-row">
                     <span class="dropdown-label">Product Type:</span>
-                    <label><input type="checkbox" value="Services" onchange="applyFilters()"> Services</label>
-                    <label><input type="checkbox" value="Rooftop" onchange="applyFilters()"> Rooftop</label>
-                    <label><input type="checkbox" value="Floating" onchange="applyFilters()"> Floating</label>
-                    <label><input type="checkbox" value="Ground" onchange="applyFilters()"> Ground</label>
+                    <label><input type="checkbox" value="Services" onchange="fetchProducts()"> Services</label>
+                    <label><input type="checkbox" value="Rooftop" onchange="fetchProducts()"> Rooftop</label>
+                    <label><input type="checkbox" value="Floating" onchange="fetchProducts()"> Floating</label>
+                    <label><input type="checkbox" value="Ground" onchange="fetchProducts()"> Ground</label>
                 </div>
                 <div class="dropdown-row">
                     <span class="dropdown-label">Price Range:</span>
-                    <input type="number" id="priceMin" placeholder="Min" oninput="applyFilters()">
+                    <input type="number" id="priceMin" placeholder="Min" oninput="debounceSearch()">
                     <span> - </span>
-                    <input type="number" id="priceMax" placeholder="Max" oninput="applyFilters()">
+                    <input type="number" id="priceMax" placeholder="Max" oninput="debounceSearch()">
                 </div>
             </div>
 
-            <!-- Active filter tags -->
             <div class="filter-tags" id="filterTags"></div>
         </div>
 
-        <!-- Product grid -->
         <div class="product-grid" id="productGrid">
-
-            <a href="productDetails.html" class="product-card" data-name="Rooftop Solar Panel" data-type="Rooftop" data-price="8500">
-                <div class="product-img-box">
-                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Rooftop Solar Panel">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Rooftop Solar Panel</p>
-                    <p><strong>Detail:</strong> 400W Monocrystalline</p>
-                    <p><strong>Price:</strong> ฿8,500</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="Floating Solar Panel" data-type="Floating" data-price="12900">
-                <div class="product-img-box">
-                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Floating Solar Panel">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Floating Solar Panel</p>
-                    <p><strong>Detail:</strong> 1kW Bifacial Float</p>
-                    <p><strong>Price:</strong> ฿12,900</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="Ground Mount System" data-type="Ground" data-price="25000">
-                <div class="product-img-box">
-                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Ground Mount System">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Ground Mount System</p>
-                    <p><strong>Detail:</strong> 600W Complete Set</p>
-                    <p><strong>Price:</strong> ฿25,000</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="EV Charger Installation" data-type="Services" data-price="18000">
-                <div class="product-img-box">
-                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="EV Charger Installation">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> EV Charger Installation</p>
-                    <p><strong>Detail:</strong> Full Setup & Config</p>
-                    <p><strong>Price:</strong> ฿18,000</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="Smart Home System" data-type="Rooftop" data-price="35000">
-                <div class="product-img-box">
-                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Smart Home System">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Smart Home System</p>
-                    <p><strong>Detail:</strong> 300W Monocrystalline</p>
-                    <p><strong>Price:</strong> ฿35,000</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="Battery Storage" data-type="Services" data-price="45000">
-                <div class="product-img-box">
-                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Battery Storage">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Battery Storage</p>
-                    <p><strong>Detail:</strong> Annual Maintenance</p>
-                    <p><strong>Price:</strong> ฿45,000</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="Rooftop Mounting Kit" data-type="Floating" data-price="5500">
-                <div class="product-img-box">
-                    <img src="https://ecoflow-service-eu-cdn.ecoflow.com/configurable/images/1747598782911/image6.png" alt="Rooftop Mounting Kit">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Rooftop Mounting Kit</p>
-                    <p><strong>Detail:</strong> 500W Bifacial Pro</p>
-                    <p><strong>Price:</strong> ฿5,500</p>
-                </div>
-            </a>
-
-            <a href="productDetails.html" class="product-card" data-name="Solar Inverter" data-type="Ground" data-price="18000">
-                <div class="product-img-box">
-                    <img src="https://inwfile.com/s-dv/zjpzhp.jpg" alt="Solar Inverter">
-                </div>
-                <div class="product-info">
-                    <p><strong>Product:</strong> Solar Inverter</p>
-                    <p><strong>Detail:</strong> 10kW Farm Bundle</p>
-                    <p><strong>Price:</strong> ฿18,000</p>
-                </div>
-            </a>
-
+            <p style="text-align:center; color:#485935;">Loading products...</p>
         </div>
-
         <p id="noResults" style="display:none; text-align:center; color:#485935; margin-top:40px;">No products found.</p>
     </main>
 
@@ -154,83 +60,83 @@
     </footer>
 
     <script>
-        let activeFilters = { name: '', types: [], minPrice: '', maxPrice: '' };
+        const API_BASE = 'http://localhost:3000';
+        let debounceTimer = null;
 
         function toggleDropdown() {
             const dd = document.getElementById('searchDropdown');
             dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            const dd = document.getElementById('searchDropdown');
-            const btn = document.querySelector('.search-dropdown-btn');
-            if (!dd.contains(e.target) && e.target !== btn) {
-                dd.style.display = 'none';
-            }
-        });
-
-        function applyFilters() {
-            activeFilters.name = document.getElementById('searchInput').value.toLowerCase();
-            activeFilters.types = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
-            activeFilters.minPrice = document.getElementById('priceMin').value;
-            activeFilters.maxPrice = document.getElementById('priceMax').value;
-
-            const cards = document.querySelectorAll('.product-card');
-            let visible = 0;
-
-            // Sort cards alphabetically by product name
-            const grid = document.getElementById('productGrid');
-            const cardArray = Array.from(cards);
-            cardArray.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
-            cardArray.forEach(card => grid.appendChild(card));
-
-            cardArray.forEach(card => {
-                const name = card.dataset.name.toLowerCase();
-                const type = card.dataset.type;
-                const price = parseFloat(card.dataset.price);
-
-                const matchName = !activeFilters.name || name.includes(activeFilters.name);
-                const matchType = activeFilters.types.length === 0 || activeFilters.types.includes(type);
-                const matchMin = !activeFilters.minPrice || price >= parseFloat(activeFilters.minPrice);
-                const matchMax = !activeFilters.maxPrice || price <= parseFloat(activeFilters.maxPrice);
-
-                if (matchName && matchType && matchMin && matchMax) {
-                    card.style.display = 'block';
-                    visible++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
-            renderTags();
+        function debounceSearch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchProducts, 400);
         }
 
-        function renderTags() {
+        async function fetchProducts() {
+            const name     = document.getElementById('searchInput').value.trim();
+            const minPrice = document.getElementById('priceMin').value;
+            const maxPrice = document.getElementById('priceMax').value;
+            const types    = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
+
+            const params = new URLSearchParams();
+            if (name)     params.append('name', name);
+            if (types.length) params.append('type', types.join(','));
+            if (minPrice) params.append('minPrice', minPrice);
+            if (maxPrice) params.append('maxPrice', maxPrice);
+
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '<p style="text-align:center; color:#485935;">Loading...</p>';
+
+            try {
+                const res  = await fetch(`${API_BASE}/products?${params.toString()}`);
+                const data = await res.json();
+
+                renderProducts(data.data || []);
+                renderTags(name, types, minPrice, maxPrice);
+            } catch (err) {
+                grid.innerHTML = '<p style="text-align:center; color:red;">Failed to load products. Is the backend running?</p>';
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (!products.length) {
+                grid.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+            noResults.style.display = 'none';
+
+            grid.innerHTML = products.map(p => `
+                <a href="/product-details?id=${p.ProductID}" class="product-card">
+                    <div class="product-img-box">
+                        <img src="${p.image_url || '/images/profile-pic.svg'}" alt="${p.name}">
+                    </div>
+                    <div class="product-info">
+                        <p><strong>Product:</strong> ${p.name}</p>
+                        <p><strong>Type:</strong> ${p.type}</p>
+                        <p><strong>Price:</strong> ฿${Number(p.price).toLocaleString()}</p>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        function renderTags(name, types, minPrice, maxPrice) {
             const container = document.getElementById('filterTags');
             container.innerHTML = '';
-
-            if (activeFilters.name) {
-                container.appendChild(makeTag('Product Name', activeFilters.name, () => {
-                    document.getElementById('searchInput').value = '';
-                    applyFilters();
-                }));
-            }
-            activeFilters.types.forEach(t => {
-                container.appendChild(makeTag('Product Type', t, () => {
-                    document.querySelectorAll('.search-dropdown input[type=checkbox]').forEach(cb => {
-                        if (cb.value === t) cb.checked = false;
-                    });
-                    applyFilters();
-                }));
-            });
-            if (activeFilters.minPrice || activeFilters.maxPrice) {
-                const label = `฿${activeFilters.minPrice || '0'} - ฿${activeFilters.maxPrice || '∞'}`;
-                container.appendChild(makeTag('Price Range', label, () => {
+            if (name) container.appendChild(makeTag('Product Name', name, () => { document.getElementById('searchInput').value = ''; fetchProducts(); }));
+            types.forEach(t => container.appendChild(makeTag('Product Type', t, () => {
+                document.querySelectorAll('.search-dropdown input[type=checkbox]').forEach(cb => { if (cb.value === t) cb.checked = false; });
+                fetchProducts();
+            })));
+            if (minPrice || maxPrice) {
+                container.appendChild(makeTag('Price Range', `฿${minPrice || '0'} - ฿${maxPrice || '∞'}`, () => {
                     document.getElementById('priceMin').value = '';
                     document.getElementById('priceMax').value = '';
-                    applyFilters();
+                    fetchProducts();
                 }));
             }
         }
@@ -242,6 +148,9 @@
             tag.querySelector('.tag-remove').addEventListener('click', onRemove);
             return tag;
         }
+
+        // Load on page open
+        fetchProducts();
     </script>
 </body>
 </html>

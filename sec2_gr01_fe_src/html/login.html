@@ -9,7 +9,6 @@
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
-    <!-- nav bar -->
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
@@ -31,6 +30,7 @@
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password">
                 </div>
+                <p id="errorMsg" style="color:red; display:none; margin-top:8px;"></p>
                 <div class="login-buttons">
                     <button type="button" class="btn-clear" onclick="clearForm()">Clear</button>
                     <button type="button" class="btn-login" onclick="handleLogin()">Login</button>
@@ -48,19 +48,45 @@
     </footer>
 
     <script>
+        const API_BASE = 'http://localhost:3000';
+
         function clearForm() {
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            document.getElementById('errorMsg').style.display = 'none';
         }
 
-        function handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        async function handleLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+
             if (!username || !password) {
-                alert('Please enter username and password.');
+                errorMsg.textContent = 'Please enter username and password.';
+                errorMsg.style.display = 'block';
                 return;
             }
-            window.location.href = 'search.html';
+
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionStorage.setItem('user', JSON.stringify(data.data));
+                    window.location.href = '/product-management';
+                } else {
+                    errorMsg.textContent = data.message || 'Login failed.';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Cannot connect to server. Please try again.';
+                errorMsg.style.display = 'block';
+            }
         }
     </script>
 </body>
