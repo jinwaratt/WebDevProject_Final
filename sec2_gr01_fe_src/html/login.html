@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+    FILE: login.html
+    PURPOSE: Admin authentication page for ARAIMAIRU Solar Solution
+    FEATURES:
+      - User login form with username and password fields
+      - Session management using sessionStorage
+      - Form validation and error messaging
+      - Clear button to reset form fields
+      - Redirect to product management after successful login
+      - API-based authentication with backend server
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +20,7 @@
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
+    <!-- Navigation: Main site menu with login highlighted -->
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
@@ -19,18 +31,23 @@
     </nav>
 
     <main>
+        <!-- Login Container: Centered card-style login form -->
         <div class="login-wrapper">
             <div class="login-card">
                 <h2>Login</h2>
+                <!-- Username Input Field -->
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username">
                 </div>
+                <!-- Password Input Field -->
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password">
                 </div>
+                <!-- Error Message: Displays validation or login errors -->
                 <p id="errorMsg" style="color:red; display:none; margin-top:8px;"></p>
+                <!-- Form Action Buttons -->
                 <div class="login-buttons">
                     <button type="button" class="btn-clear" onclick="clearForm()">Clear</button>
                     <button type="button" class="btn-login" onclick="handleLogin()">Login</button>
@@ -39,6 +56,7 @@
         </div>
     </main>
 
+    <!-- Footer: Contact information -->
     <footer>
         <h3>Contact us</h3>
         <section class="footer-content">
@@ -47,20 +65,34 @@
         </section>
     </footer>
 
+    <!-- Script: Login form handling and authentication -->
     <script>
         const API_BASE = 'http://localhost:3000';
 
+        // ========== Clear Form Handler ==========
+        // PURPOSE: Reset all form fields and hide error message
         function clearForm() {
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('errorMsg').style.display = 'none';
         }
 
+        // ========== Login Handler ==========
+        // PURPOSE: Authenticate user credentials with backend and establish session
+        // PROCESS:
+        //   1. Retrieve and trim username and password inputs
+        //   2. Validate that both fields are filled
+        //   3. Send POST request to /login endpoint with credentials
+        //   4. Store user data in sessionStorage on successful authentication
+        //   5. Redirect to product management page
+        //   6. Display error messages for validation or authentication failures
         async function handleLogin() {
+            // Retrieve form values
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
             const errorMsg = document.getElementById('errorMsg');
 
+            // Validate required fields
             if (!username || !password) {
                 errorMsg.textContent = 'Please enter username and password.';
                 errorMsg.style.display = 'block';
@@ -68,6 +100,7 @@
             }
 
             try {
+                // Send POST request to backend for authentication
                 const response = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -76,14 +109,19 @@
 
                 const data = await response.json();
 
+                // Handle successful login
                 if (data.success) {
+                    // Store user data in session storage for persistence
                     sessionStorage.setItem('user', JSON.stringify(data.data));
+                    // Redirect to admin product management page
                     window.location.href = '/product-management';
                 } else {
+                    // Display authentication error
                     errorMsg.textContent = data.message || 'Login failed.';
                     errorMsg.style.display = 'block';
                 }
             } catch (err) {
+                // Handle connection error
                 errorMsg.textContent = 'Cannot connect to server. Please try again.';
                 errorMsg.style.display = 'block';
             }

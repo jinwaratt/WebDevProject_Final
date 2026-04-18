@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<!--
+    FILE: add-product.html
+    PURPOSE: Admin interface for adding new solar products to the ARAIMAIRU database
+    FEATURES:
+      - Product form with image upload capability
+      - Real-time image preview
+      - Product status (Available/Unavailable)
+      - Form validation and error messaging
+      - Session-based authentication check
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +19,7 @@
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
+    <!-- Navigation: Links to product management and logout -->
     <nav>
         <ul>
             <li><a href="/product-management">Search</a></li>
@@ -20,9 +31,11 @@
         <div class="admin-form-wrapper">
             <h2 class="admin-form-title">Add Product</h2>
 
+            <!-- Two-column form layout -->
             <div class="admin-form-grid">
-                <!-- Left: image upload + status + product ID -->
+                <!-- Left Column: Product image, status, and product ID -->
                 <div class="admin-form-left">
+                    <!-- Status Dropdown: Sets product availability -->
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status" class="admin-select">
@@ -31,28 +44,33 @@
                         </select>
                     </div>
 
+                    <!-- Image Upload Box: Click to upload, displays preview on selection -->
                     <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
                         <span class="upload-plus" id="uploadPlus">+</span>
                         <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="previewImage(event)">
                         <img id="imgPreview" src="" alt="" style="display:none; width:100%; height:100%; object-fit:cover; border-radius:6px;">
                     </div>
 
+                    <!-- Product ID Input: Unique identifier for the product -->
                     <div class="form-group" style="margin-top: 12px;">
                         <label for="productId">ProductID</label>
                         <input type="text" id="productId" name="productId" placeholder="e.g. PRD00021">
                     </div>
                 </div>
 
-                <!-- Right: title, price, type, description -->
+                <!-- Right Column: Product details (title, price, type, description) -->
                 <div class="admin-form-right">
+                    <!-- Product Title -->
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" id="title" name="title" placeholder="Product name">
                     </div>
+                    <!-- Product Price -->
                     <div class="form-group">
                         <label for="price">Price</label>
                         <input type="number" id="price" name="price" placeholder="e.g. 8500">
                     </div>
+                    <!-- Product Type: Category selector (Rooftop, Floating, Ground, Services) -->
                     <div class="form-group">
                         <label for="type">Type</label>
                         <select id="type" name="type" class="admin-select">
@@ -63,13 +81,16 @@
                             <option value="Services">Services</option>
                         </select>
                     </div>
+                    <!-- Product Description -->
                     <div class="form-group">
                         <label for="description">Description</label>
                         <textarea id="description" name="description" rows="4" placeholder="Product description..."></textarea>
                     </div>
 
+                    <!-- Status Message: Displays validation errors or success messages -->
                     <p id="statusMsg" style="display:none; margin-top:8px;"></p>
 
+                    <!-- Submit Button -->
                     <div class="admin-form-actions">
                         <button type="button" class="btn-add-submit" onclick="submitProduct()">Add Product +</button>
                     </div>
@@ -78,6 +99,7 @@
         </div>
     </main>
 
+    <!-- Footer: Contact information -->
     <footer>
         <h3>Contact us</h3>
         <section class="footer-content">
@@ -86,18 +108,25 @@
         </section>
     </footer>
 
+    <!-- Script: Form handling and API communication -->
     <script>
         const API_BASE = 'http://localhost:3000';
 
-        // Guard: must be logged in
+        // ========== Authentication Guard ==========
+        // Verify user is logged in; redirect to login page if not
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
         if (!user) window.location.href = '/login';
 
+        // ========== Logout Handler ==========
+        // Clears session storage and redirects to login page
         function handleLogout() {
             sessionStorage.removeItem('user');
             window.location.href = '/login';
         }
 
+        // ========== Image Preview Handler ==========
+        // PURPOSE: Display selected image as preview in upload box
+        // PARAMS: event - file input change event
         function previewImage(event) {
             const preview  = document.getElementById('imgPreview');
             const plus     = document.getElementById('uploadPlus');
@@ -109,7 +138,16 @@
             }
         }
 
+        // ========== Form Submission Handler ==========
+        // PURPOSE: Validate form inputs and submit product data to backend API
+        // PROCESS:
+        //   1. Retrieve and trim all form field values
+        //   2. Validate required fields (title, price, type, productId)
+        //   3. Build FormData object with product info and image
+        //   4. Send POST request to /products endpoint
+        //   5. Handle success/error responses and provide user feedback
         async function submitProduct() {
+            // Retrieve form values
             const title       = document.getElementById('title').value.trim();
             const price       = document.getElementById('price').value.trim();
             const type        = document.getElementById('type').value;
@@ -119,6 +157,7 @@
             const imgFile     = document.getElementById('imgInput').files[0];
             const statusMsg   = document.getElementById('statusMsg');
 
+            // Validate required fields
             if (!title || !price || !type || !productId) {
                 statusMsg.textContent = 'Please fill in all required fields.';
                 statusMsg.style.color = 'red';
@@ -137,22 +176,27 @@
             formData.append('accountID',   user.AccountID);
             if (imgFile) formData.append('image', imgFile);
 
+            // Show loading status
             statusMsg.textContent    = 'Saving...';
             statusMsg.style.color    = '#485935';
             statusMsg.style.display  = 'block';
 
             try {
+                // Send POST request to backend
                 const res  = await fetch(`${API_BASE}/products`, { method: 'POST', body: formData });
                 const data = await res.json();
 
+                // Handle success response
                 if (data.success) {
                     alert('Product added successfully!');
                     window.location.href = '/product-management';
                 } else {
+                    // Handle backend error
                     statusMsg.textContent = data.message || 'Failed to add product.';
                     statusMsg.style.color = 'red';
                 }
             } catch (err) {
+                // Handle connection error
                 statusMsg.textContent = 'Cannot connect to server. Please try again.';
                 statusMsg.style.color = 'red';
             }

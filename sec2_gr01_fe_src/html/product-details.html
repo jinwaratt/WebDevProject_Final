@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+    FILE: product-details.html
+    PURPOSE: Display detailed information for a single solar product
+    FEATURES:
+      - Dynamic product loading from backend API
+      - Product image with optional unavailable overlay
+      - Detailed product information display (title, type, description, price, status)
+      - Availability status indicator with visual styling
+      - Back button for navigation
+      - Responsive design for mobile and desktop
+    URL PARAMS: id - Product ID to display (passed via query string)
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +18,8 @@
     <link rel="stylesheet" href="/styles.css">
     <title>Product Details</title>
     <style>
-        /* ── Unavailable banner ── */
+        /* ── Unavailable Product Banner ── */
+        /* Styled notification banner shown when product is unavailable */
         .unavailable-banner {
             display: flex;
             align-items: center;
@@ -24,13 +37,16 @@
             font-size: 1.1rem;
             flex-shrink: 0;
         }
-        /* Fade the image when unavailable */
+        /* ── Image Fading for Unavailable Products ── */
+        /* Reduces image opacity when product is unavailable */
         .details-img-box.faded img {
             opacity: 0.45;
         }
         .details-img-box {
             position: relative;
         }
+        /* ── Unavailable Overlay ── */
+        /* Dark overlay with "Unavailable" text displayed on unavailable product images */
         .details-img-overlay {
             display: none;
             position: absolute;
@@ -58,6 +74,7 @@
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
+    <!-- Navigation: Main site menu with search highlighted -->
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
@@ -68,11 +85,13 @@
     </nav>
 
     <main>
+        <!-- Product Details Container: Dynamically populated with product data -->
         <div class="details-wrapper" id="detailsWrapper">
             <p style="text-align:center; color:#485935;">Loading product...</p>
         </div>
     </main>
 
+    <!-- Footer: Contact information -->
     <footer>
         <h3>Contact us</h3>
         <section class="footer-content">
@@ -81,59 +100,84 @@
         </section>
     </footer>
 
+    <!-- Script: Product data loading and dynamic content rendering -->
     <script>
         const API_BASE = 'http://localhost:3000';
 
+        // ========== Load Product Data ==========
+        // PURPOSE: Fetch product details from backend API and render the details page
+        // PROCESS:
+        //   1. Extract product ID from URL query parameter
+        //   2. Validate product ID is provided
+        //   3. Send GET request to /products/:id endpoint
+        //   4. Handle error responses and display appropriate messages
+        //   5. Render product details with conditional unavailable styling
+        //   6. Display unavailable banner and image overlay for out-of-stock products
         async function loadProduct() {
+            // Extract product ID from URL query parameter
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
             const wrapper = document.getElementById('detailsWrapper');
 
+            // Validate product ID is provided
             if (!id) {
                 wrapper.innerHTML = '<p style="text-align:center; color:red;">No product ID provided.</p>';
                 return;
             }
 
             try {
+                // Send GET request to fetch product data
                 const res  = await fetch(`${API_BASE}/products/${id}`);
                 const data = await res.json();
 
+                // Handle error response
                 if (!data.success) {
                     wrapper.innerHTML = `<p style="text-align:center; color:red;">${data.message}</p>`;
                     return;
                 }
 
+                // Extract product data and determine availability
                 const p = data.data;
                 const available = p.status == 1;
 
+                // Render product details HTML with conditional unavailable styling
                 wrapper.innerHTML = `
+                    <!-- Product Image: Shows unavailable overlay if out of stock -->
                     <div class="details-img-box${available ? '' : ' faded'}">
                         <img src="${p.image_url || '/images/profile-pic.svg'}" alt="${p.name}">
                         <div class="details-img-overlay"><span>Unavailable</span></div>
                     </div>
+                    <!-- Product Information Panel -->
                     <div class="details-info">
+                        <!-- Unavailable Warning Banner: Only shown for out-of-stock products -->
                         ${!available ? `
                         <div class="unavailable-banner">
                             <span class="banner-icon">&#9888;</span>
                             <span>This product is currently <strong>unavailable</strong> and cannot be ordered at this time.</span>
                         </div>` : ''}
+                        <!-- Product Details: Title, type, description, price, status -->
                         <div class="details-fields">
+                            <!-- Product Title -->
                             <div class="detail-row">
                                 <span class="detail-label">Title :</span>
                                 <span class="detail-value">${p.name}</span>
                             </div>
+                            <!-- Product Type: Category of solar system -->
                             <div class="detail-row">
                                 <span class="detail-label">Type :</span>
                                 <span class="detail-value">${p.type}</span>
                             </div>
+                            <!-- Product Description: Detailed information about the product -->
                             <div class="detail-row">
                                 <span class="detail-label">Product Detail :</span>
                                 <span class="detail-value">${p.description || '-'}</span>
                             </div>
+                            <!-- Product Price: Formatted with Thai Baht currency symbol -->
                             <div class="detail-row">
                                 <span class="detail-label">Price :</span>
                                 <span class="detail-value">฿${Number(p.price).toLocaleString()}</span>
                             </div>
+                            <!-- Availability Status: Color-coded based on availability -->
                             <div class="detail-row">
                                 <span class="detail-label">Status :</span>
                                 <span class="detail-value" style="color:${available ? '#3a7d2c' : '#c97b3a'}; font-weight:600;">
@@ -141,16 +185,20 @@
                                 </span>
                             </div>
                         </div>
+                        <!-- Action Buttons: Navigation back to previous page -->
                         <div class="details-actions">
                             <button class="btn-back" onclick="history.back()">Back</button>
                         </div>
                     </div>
                 `;
             } catch (err) {
+                // Handle connection error
                 wrapper.innerHTML = '<p style="text-align:center; color:red;">Failed to load product. Is the backend running?</p>';
             }
         }
 
+        // ========== Initialization ==========
+        // Load and display product data when page loads
         loadProduct();
     </script>
 </body>

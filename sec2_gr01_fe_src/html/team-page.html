@@ -1,4 +1,14 @@
 <!doctype html>
+<!--
+    FILE: team-page.html
+    PURPOSE: Team information page displaying the ARAIMAIRU Solar Solution team members
+    FEATURES:
+      - Team member profiles with avatar images
+      - Member information display (ID, name, role)
+      - Responsive team member card layout
+      - Professional team showcase
+      - Static content (no backend integration required)
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,7 +19,7 @@
   <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
-    <!-- nav bar -->
+    <!-- Navigation: Main site menu with team page highlighted -->
     <nav>
       <ul>
         <li><a href="/">Home</a></li>
@@ -20,17 +30,23 @@
     </nav>
 
     <main>
+      <!-- Team Section: Displays all team members with their information -->
       <section class="team-content">
         <h2>Our Professional Team</h2>
+        <!-- Team Members Container: Grid layout of individual team member cards -->
         <div class="member">
+          <!-- Team Member 1: Solar Systems Engineer -->
           <div id="each-member">
+            <!-- Member Avatar: Profile picture -->
             <div class="avatar-frame">
               <img src="images/profile-pic.svg" />
             </div>
+            <!-- Member Identification -->
             <p class="member-id">6788007</p>
             <p class="member-name">Chaiyapat Buranapornchai</p>
             <p class="member-role">Solar Systems Engineer</p>
           </div>
+          <!-- Team Member 2: Project Manager -->
           <div id="each-member">
             <div class="avatar-frame">
               <img src="images/profile-pic.svg" />
@@ -39,6 +55,7 @@
             <p class="member-name">Warattaya Punchaluay</p>
             <p class="member-role">Project Manager</p>
           </div>
+          <!-- Team Member 3: Energy Consultant -->
           <div id="each-member">
             <div class="avatar-frame">
               <img src="images/profile-pic.svg" />
@@ -47,6 +64,7 @@
             <p class="member-name">Rawiporn Wachiracheevin</p>
             <p class="member-role">Energy Consultant</p>
           </div>
+          <!-- Team Member 4: Installation Specialist -->
           <div id="each-member">
             <div class="avatar-frame">
               <img src="images/profile-pic.svg" />
@@ -59,6 +77,7 @@
       </section>
     </main>
 
+    <!-- Footer: Contact information and company details -->
     <footer>
       <h3>Contact us</h3>
       <section class="footer-content">

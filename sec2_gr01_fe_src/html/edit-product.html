@@ -1,4 +1,17 @@
 <!DOCTYPE html>
+<!--
+    FILE: edit-product.html
+    PURPOSE: Admin interface for editing existing solar products in the ARAIMAIRU database
+    FEATURES:
+      - Load and display product details from backend
+      - Edit product information with image update capability
+      - Real-time image preview for new uploads
+      - Product status (Available/Unavailable) management
+      - Delete product functionality with confirmation
+      - Form validation and error messaging
+      - Session-based authentication check
+    URL PARAMS: id - Product ID to edit (passed via query string)
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +22,7 @@
 <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
+    <!-- Navigation: Links to product management and logout -->
     <nav>
         <ul>
             <li><a href="/product-management">Search</a></li>
@@ -18,17 +32,20 @@
 
     <main>
         <div class="admin-form-wrapper">
+            <!-- Header with Delete button -->
             <div class="edit-form-header">
                 <h2 class="admin-form-title">Edit Product</h2>
                 <button type="button" class="btn-delete" onclick="deleteProduct()">Delete</button>
             </div>
 
+            <!-- Form container: dynamically populated with product data -->
             <div class="admin-form-grid" id="formGrid">
                 <p style="text-align:center; color:#485935;">Loading product...</p>
             </div>
         </div>
     </main>
 
+    <!-- Footer: Contact information -->
     <footer>
         <h3>Contact us</h3>
         <section class="footer-content">
@@ -37,21 +54,33 @@
         </section>
     </footer>
 
+    <!-- Script: Form handling, data loading, and API communication -->
     <script>
         const API_BASE = 'http://localhost:3000';
 
-        // Guard: must be logged in
+        // ========== Authentication Guard ==========
+        // Verify user is logged in; redirect to login page if not
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
         if (!user) window.location.href = '/login';
 
+        // Extract product ID from URL query parameter
         const params   = new URLSearchParams(window.location.search);
         const productId = params.get('id');
 
+        // ========== Logout Handler ==========
+        // Clears session storage and redirects to login page
         function handleLogout() {
             sessionStorage.removeItem('user');
             window.location.href = '/login';
         }
 
+        // ========== Load Product Data ==========
+        // PURPOSE: Fetch product details from backend API and render the edit form
+        // PROCESS:
+        //   1. Validate product ID from URL parameter
+        //   2. Send GET request to retrieve product data
+        //   3. Display error if product not found
+        //   4. Pass data to renderForm() to populate the edit form
         async function loadProduct() {
             if (!productId) {
                 document.getElementById('formGrid').innerHTML = '<p style="color:red;">No product ID provided.</p>';
@@ -70,6 +99,10 @@
             }
         }
 
+        // ========== Render Edit Form ==========
+        // PURPOSE: Build and display the product edit form with current product data
+        // PARAMS: p - product data object from API
+        // CONTENT: Two-column form with image, status, product ID on left; title, price, type, description on right
         function renderForm(p) {
             const types = ['Rooftop', 'Floating', 'Ground', 'Services'];
             const typeOptions = types.map(t =>
@@ -77,7 +110,9 @@
             ).join('');
 
             document.getElementById('formGrid').innerHTML = `
+                <!-- Left Column: Product image, status, and product ID (read-only) -->
                 <div class="admin-form-left">
+                    <!-- Status Dropdown: Sets product availability -->
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status" class="admin-select">
@@ -86,6 +121,7 @@
                         </select>
                     </div>
 
+                    <!-- Image Upload Box: Click to change image, shows current or new preview -->
                     <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
                         <span class="upload-plus" id="uploadPlus" style="display:none;">+</span>
                         <img id="imgPreview" src="${p.image_url || '/images/profile-pic.svg'}" alt="Product Image"
@@ -93,32 +129,40 @@
                         <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="previewImage(event)">
                     </div>
 
+                    <!-- Product ID Display (disabled/read-only): Cannot be changed after creation -->
                     <div class="form-group" style="margin-top: 12px;">
                         <label for="productIdDisplay">ProductID</label>
                         <input type="text" id="productIdDisplay" value="${p.ProductID}" disabled>
                     </div>
                 </div>
 
+                <!-- Right Column: Product details (title, price, type, description) -->
                 <div class="admin-form-right">
+                    <!-- Product Title -->
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" id="title" name="title" value="${p.name}">
                     </div>
+                    <!-- Product Price -->
                     <div class="form-group">
                         <label for="price">Price</label>
                         <input type="number" id="price" name="price" value="${p.price}">
                     </div>
+                    <!-- Product Type: Category selector -->
                     <div class="form-group">
                         <label for="type">Type</label>
                         <select id="type" name="type" class="admin-select">${typeOptions}</select>
                     </div>
+                    <!-- Product Description -->
                     <div class="form-group">
                         <label for="description">Description</label>
                         <textarea id="description" name="description" rows="4">${p.description || ''}</textarea>
                     </div>
 
+                    <!-- Status Message: Displays validation errors or success messages -->
                     <p id="statusMsg" style="display:none; margin-top:8px;"></p>
 
+                    <!-- Save Button: Submits updated product data -->
                     <div class="admin-form-actions">
                         <button type="button" class="btn-save" onclick="saveProduct()">Save</button>
                     </div>
@@ -126,6 +170,9 @@
             `;
         }
 
+        // ========== Image Preview Handler ==========
+        // PURPOSE: Display newly selected image as preview in upload box
+        // PARAMS: event - file input change event
         function previewImage(event) {
             const preview = document.getElementById('imgPreview');
             const plus    = document.getElementById('uploadPlus');
@@ -137,7 +184,16 @@
             }
         }
 
+        // ========== Save Product Handler ==========
+        // PURPOSE: Validate form inputs and submit updated product data to backend API
+        // PROCESS:
+        //   1. Retrieve and trim all form field values
+        //   2. Validate required fields (title and price)
+        //   3. Build FormData object with updated product info and optional new image
+        //   4. Send PUT request to /products/:id endpoint
+        //   5. Handle success/error responses and provide user feedback
         async function saveProduct() {
+            // Retrieve form values
             const title       = document.getElementById('title').value.trim();
             const price       = document.getElementById('price').value.trim();
             const type        = document.getElementById('type').value;
@@ -146,6 +202,7 @@
             const imgFile     = document.getElementById('imgInput').files[0];
             const statusMsg   = document.getElementById('statusMsg');
 
+            // Validate required fields
             if (!title || !price) {
                 statusMsg.textContent = 'Please fill in all required fields.';
                 statusMsg.style.color = 'red';
@@ -153,6 +210,7 @@
                 return;
             }
 
+            // Build multipart/form-data (supports optional image upload)
             const formData = new FormData();
             formData.append('name',        title);
             formData.append('type',        type);
@@ -162,31 +220,44 @@
             formData.append('accountID',   user.AccountID);
             if (imgFile) formData.append('image', imgFile);
 
+            // Show loading status
             statusMsg.textContent   = 'Saving...';
             statusMsg.style.color   = '#485935';
             statusMsg.style.display = 'block';
 
             try {
+                // Send PUT request to backend to update product
                 const res  = await fetch(`${API_BASE}/products/${productId}`, { method: 'PUT', body: formData });
                 const data = await res.json();
 
+                // Handle success response
                 if (data.success) {
                     alert('Product updated successfully!');
                     window.location.href = '/product-management';
                 } else {
+                    // Handle backend error
                     statusMsg.textContent = data.message || 'Update failed.';
                     statusMsg.style.color = 'red';
                 }
             } catch (err) {
+                // Handle connection error
                 statusMsg.textContent = 'Cannot connect to server. Please try again.';
                 statusMsg.style.color = 'red';
             }
         }
 
+        // ========== Delete Product Handler ==========
+        // PURPOSE: Permanently delete the product after user confirmation
+        // PROCESS:
+        //   1. Show confirmation dialog to prevent accidental deletion
+        //   2. Send DELETE request to backend with product ID
+        //   3. Handle success/error responses
+        //   4. Redirect to product management page on success
         async function deleteProduct() {
             if (!confirm('Are you sure you want to delete this product?')) return;
 
             try {
+                // Send DELETE request to backend
                 const res  = await fetch(`${API_BASE}/products/${productId}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
@@ -194,6 +265,7 @@
                 });
                 const data = await res.json();
 
+                // Handle success response
                 if (data.success) {
                     alert('Product deleted.');
                     window.location.href = '/product-management';
@@ -205,6 +277,8 @@
             }
         }
 
+        // ========== Initialization ==========
+        // Load and display product data when page loads
         loadProduct();
     </script>
 </body>
