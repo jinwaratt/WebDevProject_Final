@@ -115,7 +115,7 @@ router.get('/products/:id', (req, res) => {
 // method: POST
 // URL: http://localhost:3000/products
 // body: form-data  ← must be form-data (NOT raw JSON) when sending an image
-//   ProductID  : PRD0100
+//   ProductID  : PRD00100
 //   name       : Growatt SPF 5000
 //   type       : Inverter
 //   price      : 27500
@@ -128,8 +128,7 @@ router.get('/products/:id', (req, res) => {
 // method: POST
 // URL: http://localhost:3000/products
 // body: form-data
-//   ProductID  : PRD00100
-//   description: Missing name, type, price and accountID
+//   ProductID  : PRD000101
 // -------------------------------------------------------
 
 // POST /products  — insert a new product (with optional ImgBB image upload)
@@ -171,7 +170,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
 // -------------------------------------------------------
 // Testing Update a Product with a new image (success case)
 // method: PUT
-// URL: http://localhost:3000/products/PRD00100
+// URL: http://localhost:3000/products/PRD000100
 // body: form-data  ← must be form-data (NOT raw JSON) when sending an image
 //   price      : 29000
 //   description: 5kW Hybrid Solar Inverter with built-in MPPT controller - Updated model
