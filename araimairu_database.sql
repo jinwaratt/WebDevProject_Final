@@ -159,3 +159,4 @@ INSERT INTO `ProductLog` (`AccountID`, `ProductID`, `action`, `dateAndTime`) VAL
 ('ACC00006', 'PRD00026', 1, '2024-03-11 15:50:00'),
 ('ACC00007', 'PRD00027', 1, '2024-03-12 10:10:00'),
 ('ACC00008', 'PRD00028', 1, '2024-03-13 16:30:00');
+
