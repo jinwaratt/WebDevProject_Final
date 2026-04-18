@@ -54,25 +54,16 @@ async function uploadToImgBB(fileBuffer) {
 // Helper: write a ProductLog entry
 // Action codes: 1=Added, 2=Updated, 3=Deleted
 function writeLog(accountID, productID, action) {
-    const sql = `INSERT INTO ProductLog (AccountID, ProductID, action, dateAndTime) VALUES (?, ?, ?, NOW())
-                 ON DUPLICATE KEY UPDATE action = VALUES(action), dateAndTime = NOW()`
+    const sql = `INSERT INTO ProductLog (AccountID, ProductID, action, dateAndTime) VALUES (?, ?, ?, NOW())`
     dbConn.query(sql, [accountID, productID, action], (err) => {
         if (err) console.error('ProductLog error:', err.message)
     })
 }
 
-
-// ============================================================
-// 1. PRODUCT SEARCH & DETAILS
-// ============================================================
-
-// GET /products  — no criteria → all, with criteria → filtered
-// Query params: name, type (comma-separated), minPrice, maxPrice
-// Returns ALL products; frontend handles unavailable visual distinction
 router.get('/products', (req, res) => {
     const { name, type, minPrice, maxPrice } = req.query
 
-    let sql = `SELECT * FROM Product WHERE 1=1`
+    let sql = `SELECT * FROM Product WHERE isDeleted = FALSE`
     const params = []
 
     if (name) {
@@ -96,6 +87,7 @@ router.get('/products', (req, res) => {
         sql += ` AND price <= ?`
         params.push(parseFloat(maxPrice))
     }
+    sql += ` ORDER BY status DESC`
 
     dbConn.query(sql, params, (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message })
@@ -105,7 +97,7 @@ router.get('/products', (req, res) => {
 
 // GET /products/:id  — single product detail
 router.get('/products/:id', (req, res) => {
-    const sql = `SELECT * FROM Product WHERE ProductID = ?`
+    const sql = `SELECT * FROM Product WHERE ProductID = ? AND isDeleted = FALSE`
     dbConn.query(sql, [req.params.id], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: err.message })
         if (results.length === 0) return res.status(404).json({ success: false, message: 'Product not found' })
@@ -123,7 +115,7 @@ router.get('/products/:id', (req, res) => {
 // method: POST
 // URL: http://localhost:3000/products
 // body: form-data  ← must be form-data (NOT raw JSON) when sending an image
-//   ProductID  : PRD00021
+//   ProductID  : PRD0100
 //   name       : Growatt SPF 5000
 //   type       : Inverter
 //   price      : 27500
@@ -136,7 +128,7 @@ router.get('/products/:id', (req, res) => {
 // method: POST
 // URL: http://localhost:3000/products
 // body: form-data
-//   ProductID  : PRD00023
+//   ProductID  : PRD00100
 //   description: Missing name, type, price and accountID
 // -------------------------------------------------------
 
@@ -179,20 +171,12 @@ router.post('/products', upload.single('image'), async (req, res) => {
 // -------------------------------------------------------
 // Testing Update a Product with a new image (success case)
 // method: PUT
-// URL: http://localhost:3000/products/PRD00021
+// URL: http://localhost:3000/products/PRD00100
 // body: form-data  ← must be form-data (NOT raw JSON) when sending an image
 //   price      : 29000
 //   description: 5kW Hybrid Solar Inverter with built-in MPPT controller - Updated model
 //   accountID  : ACC00002
 //   image      : (select a new .jpg/.png file)
-//
-// Testing Update a Product without changing the image (success case)
-// method: PUT
-// URL: http://localhost:3000/products/PRD00021
-// body: form-data
-//   price     : 31000
-//   accountID : ACC00001
-//   (no image field — existing image_url is kept as-is)
 //
 // Testing Update a Product (product not found)
 // method: PUT
@@ -251,23 +235,24 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
 })
 
 // -------------------------------------------------------
-// Testing Delete (deactivate) a Product (success case)
+// Testing Delete (soft-delete) a Product (success case)
 // method: DELETE
-// URL: http://localhost:3000/products/PRD00021
+// URL: http://localhost:3000/products/PRD00100
 // body: raw JSON
 // {
 //   "accountID": "ACC00001"
 // }
 //
-// Testing Delete (deactivate) a Product (missing accountID)
+// Testing Delete (soft-delete) a Product (product not found)
 // method: DELETE
-// URL: http://localhost:3000/products/PRD00021
+// URL: http://localhost:3000/products/PRD99999
 // body: raw JSON
 // {
+//   "accountID": "ACC00001"
 // }
 // -------------------------------------------------------
 
-// DELETE /products/:id  — soft-delete (sets status = 0)
+// DELETE /products/:id  — soft-delete (sets isDeleted = TRUE)
 // Body: raw JSON with accountID
 router.delete('/products/:id', (req, res) => {
     const { accountID } = req.body
@@ -275,52 +260,17 @@ router.delete('/products/:id', (req, res) => {
 
     if (!accountID) return res.status(400).json({ success: false, message: 'accountID is required' })
 
-    const sql = `UPDATE Product SET status = 0 WHERE ProductID = ?`
-
+    const sql = `UPDATE Product SET isDeleted = TRUE WHERE ProductID = ? AND isDeleted = FALSE`
     dbConn.query(sql, [id], (err, result) => {
         if (err) return res.status(500).json({ success: false, message: err.message })
         if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Product not found' })
         writeLog(accountID, id, 3)
-        res.json({ success: true, message: 'Product deactivated successfully' })
+        res.json({ success: true, message: 'Product deleted successfully' })
     })
 })
 
 
-// ============================================================
-// 3. AUTHENTICATION - LOGIN
-// ============================================================
 
-// -------------------------------------------------------
-// Testing Login (success case)
-// method: POST
-// URL: http://localhost:3000/login
-// body: raw JSON
-// {
-//   "username": "somchai_super",
-//   "password": "Passw0rd1!"
-// }
-//
-// Testing Login (wrong password)
-// method: POST
-// URL: http://localhost:3000/login
-// body: raw JSON
-// {
-//   "username": "somchai_super",
-//   "password": "wrongpassword"
-// }
-//
-// Testing Login (username not found)
-// method: POST
-// URL: http://localhost:3000/login
-// body: raw JSON
-// {
-//   "username": "ghost_user",
-//   "password": "Passw0rd1!"
-// }
-// -------------------------------------------------------
-
-// POST /login
-// Body: raw JSON with username, password
 router.post('/login', (req, res) => {
     const { username, password } = req.body
 

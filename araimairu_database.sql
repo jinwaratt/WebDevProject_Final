@@ -48,16 +48,20 @@ CREATE TABLE `Product` (
     `description` NVARCHAR(150) NULL,
     `image_url` VARCHAR(500) NULL,
     `status` TINYINT(1) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (`ProductID`)
 );
 
 -- Table: ProductLog
 CREATE TABLE `ProductLog` (
+    `logID` INT NOT NULL AUTO_INCREMENT,
     `AccountID` CHAR(8) NOT NULL,
     `ProductID` CHAR(8) NOT NULL,
     `action` INT NOT NULL,
     `dateAndTime` DATETIME NOT NULL,
-    PRIMARY KEY (`AccountID`, `ProductID`),
+    PRIMARY KEY (`logID`),
+    INDEX `idx_productlog_accountid` (`AccountID`),
+    INDEX `idx_productlog_productid` (`ProductID`),
     FOREIGN KEY (`AccountID`) REFERENCES `Account`(`AccountID`),
     FOREIGN KEY (`ProductID`) REFERENCES `Product`(`ProductID`)
 );
