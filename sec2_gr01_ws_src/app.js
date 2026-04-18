@@ -122,7 +122,7 @@ router.get('/products/:id', (req, res) => {
 //   description: 5kW Hybrid Solar Inverter with built-in MPPT controller
 //   status     : 1
 //   accountID  : ACC00001
-//   image      : (select a .jpg/.png file)
+//   image      : test_create.png (provided in repository)
 //
 // Testing Insert a new Product (missing required fields)
 // method: POST
@@ -175,7 +175,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
 //   price      : 29000
 //   description: 5kW Hybrid Solar Inverter with built-in MPPT controller - Updated model
 //   accountID  : ACC00002
-//   image      : (select a new .jpg/.png file)
+//   image      : test_update.jpg (provided in repository)
 //
 // Testing Update a Product (product not found)
 // method: PUT
