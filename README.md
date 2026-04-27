@@ -6,15 +6,15 @@
 
 2. Connect to Local instance MySQL80
 
-![alt text](README_img/step1.png)
+![alt text](README_img/step2.png)
 
-3. Go to File > Open SQL Script > Choose "araimairu_database.sql" file and click Open
+3. Go to File > Open SQL Script > Choose "sec2_gr01_database.sql" file and click Open
 
-![alt text](README_img/step2-1.png)![alt text](README_img/step2-2.png)
+![alt text](README_img/step3-1.png)![alt text](README_img/step3-2.png)
 
 4. In the file, press Ctrl+A to select all the code, then press the lightning button to execute the script
 
-![alt text](README_img/step3.png)
+![alt text](README_img/step4.png)
 
 5. On MySQL Workbench, go to Server > Users and Privileges
 
@@ -38,7 +38,7 @@ Confirm Password: ict555
 Then, click Apply
 
 8. Go to Schema Privileges. Click Add Entry...
-![alt text](README_img/step8.png)
+   ![alt text](README_img/step8.png)
 
 9. Choose Selected schema: araimairu
 
@@ -51,3 +51,34 @@ Then, click Ok
 ![alt text](README_img/step10.png)
 
 Then, click Apply
+
+## How to start server
+
+### Frontend Server
+
+```
+cd sec2_gr01_fe_src
+npm install
+npm start
+```
+
+### Web Services Server
+
+```
+cd sec2_gr01_ws_src
+npm install
+npm start
+```
+
+After that, you can visit http://localhost:8000
+
+## How to access product management page
+
+![alt text](README_img/login-info.png)
+
+Please use the following username and password to login
+
+```
+Username: somchai_super
+Password: Passw0rd1!
+```
