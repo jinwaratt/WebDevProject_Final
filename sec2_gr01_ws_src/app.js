@@ -21,10 +21,10 @@ let dbConn = mysql.createPool({
     }
 })
 
-dbConn.connect(function(err){
-    if(err) throw err;
-    console.log(`Connected DB: ${process.env.DB_NAME}`)
-})
+// dbConn.connect(function(err){
+//     if(err) throw err;
+//     console.log(`Connected DB: ${process.env.DB_NAME}`)
+// })
 
 const app = express()
 var cors = require('cors');
