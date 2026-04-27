@@ -113,6 +113,18 @@ router.get('/products', (req, res) => {
     })
 })
 
+// -------------------------------------------------------
+// Testing GET product detail by id (Pass)
+// method: GET
+// URL: http://localhost:3000/products/PRD00001
+// body: none
+//
+// -------------------------------------------------------
+// Testing GET product product detail by id (Fail)
+// method: GET
+// URL: http://localhost:3000/products/PRD54321
+// body: none
+//
 // GET /products/:id  — single product detail
 router.get('/products/:id', (req, res) => {
     const sql = `SELECT * FROM Product WHERE ProductID = ? AND isDeleted = FALSE`
