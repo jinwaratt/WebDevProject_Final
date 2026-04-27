@@ -7,11 +7,18 @@ const axios    = require('axios')
 const FormData = require('form-data')
 dotenv.config()
 
-let dbConn = mysql.createConnection({
+let dbConn = mysql.createPool({
     host:     process.env.HOST,
     user:     process.env.DB_USER,
     password: process.env.DB_PASS,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    port:     process.env.DB_PORT,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    ssl: {
+        rejectUnauthorized: false
+    }
 })
 
 dbConn.connect(function(err){
