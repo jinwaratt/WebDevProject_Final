@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
     FILE: search.html
     PURPOSE: Customer-facing search and product browsing page for ARAIMAIRU Solar Solution
@@ -13,200 +13,269 @@
       - Only displays available products (status = 1) to customers
 -->
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/styles.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
     <title>Search – ARAIMAIRU Solar Solution</title>
     <style>
-        /* ── Unavailable Product Card Styling ── */
-        /* Faded image and info for products that are currently unavailable */
-        .product-card.unavailable .product-img-box img {
-            opacity: 0.45;
-        }
-        .product-img-wrapper {
-            position: relative;
-        }
-        /* ── Unavailable Product Badge ── */
-        /* Centered badge overlay displayed on unavailable product images */
-        .unavailable-badge {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(80, 40, 20, 0.72);
-            color: #fff;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 5px 14px;
-            border-radius: 20px;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .product-card.unavailable .unavailable-badge {
-            display: block;
-        }
-        .product-card.unavailable .product-info {
-            opacity: 0.6;
-        }
+      /* ── Unavailable Product Card Styling ── */
+      /* Faded image and info for products that are currently unavailable */
+      .product-card.unavailable .product-img-box img {
+        opacity: 0.45;
+      }
+      .product-img-wrapper {
+        position: relative;
+      }
+      /* ── Unavailable Product Badge ── */
+      /* Centered badge overlay displayed on unavailable product images */
+      .unavailable-badge {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(80, 40, 20, 0.72);
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 5px 14px;
+        border-radius: 20px;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      .product-card.unavailable .unavailable-badge {
+        display: block;
+      }
+      .product-card.unavailable .product-info {
+        opacity: 0.6;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header><h1>ARAIMAIRU Solar Solution</h1></header>
 
     <!-- Navigation: Main site menu with search highlighted -->
     <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/search" class="active">Search</a></li>
-            <li><a href="/team">Our Team</a></li>
-            <li><a href="/login">Admin Login</a></li>
-        </ul>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/search" class="active">Search</a></li>
+        <li><a href="/team">Our Team</a></li>
+        <li><a href="/login">Admin Login</a></li>
+      </ul>
     </nav>
 
     <main>
-        <!-- Search and Filter Section -->
-        <div class="search-section">
-            <!-- Search Bar: Product name search with dropdown toggle and search button -->
-            <div class="search-bar">
-                <button class="search-dropdown-btn" onclick="toggleDropdown()" title="Advanced Search">&#9660; </button>
-                <input type="text" id="searchInput" placeholder="Product Name*" oninput="debounceSearch()">
-                <button class="search-icon-btn" onclick="fetchProducts()">&#128269;</button>
-            </div>
-
-            <!-- Advanced Filters Dropdown: Type and price range filters -->
-            <div class="search-dropdown" id="searchDropdown">
-                <!-- Product Type Filter: Checkbox selection for multiple types -->
-                <div class="dropdown-row">
-                    <span class="dropdown-label">Product Type:</span>
-                    <label><input type="checkbox" value="Services" onchange="fetchProducts()"> Services</label>
-                    <label><input type="checkbox" value="Rooftop" onchange="fetchProducts()"> Rooftop</label>
-                    <label><input type="checkbox" value="Floating" onchange="fetchProducts()"> Floating</label>
-                    <label><input type="checkbox" value="Ground" onchange="fetchProducts()"> Ground</label>
-                </div>
-                <!-- Price Range Filter: Min and max price inputs -->
-                <div class="dropdown-row">
-                    <span class="dropdown-label">Price Range:</span>
-                    <input type="number" id="priceMin" placeholder="Min" oninput="debounceSearch()">
-                    <span> - </span>
-                    <input type="number" id="priceMax" placeholder="Max" oninput="debounceSearch()">
-                </div>
-            </div>
-
-            <!-- Active Filter Tags: Visual display of applied filters with removal option -->
-            <div class="filter-tags" id="filterTags"></div>
+      <!-- Search and Filter Section -->
+      <div class="search-section">
+        <!-- Search Bar: Product name search with dropdown toggle and search button -->
+        <div class="search-bar">
+          <button
+            class="search-dropdown-btn"
+            onclick="toggleDropdown()"
+            title="Advanced Search"
+          >
+            &#9660;
+          </button>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Product Name*"
+            oninput="debounceSearch()"
+          />
+          <button class="search-icon-btn" onclick="fetchProducts()">
+            &#128269;
+          </button>
         </div>
 
-        <!-- Product Grid: Displays search results in card layout with product detail links -->
-        <div class="product-grid" id="productGrid">
-            <p style="text-align:center; color:#485935;">Loading products...</p>
+        <!-- Advanced Filters Dropdown: Type and price range filters -->
+        <div class="search-dropdown" id="searchDropdown">
+          <!-- Product Type Filter: Checkbox selection for multiple types -->
+          <div class="dropdown-row">
+            <span class="dropdown-label">Product Type:</span>
+            <label
+              ><input
+                type="checkbox"
+                value="Services"
+                onchange="fetchProducts()"
+              />
+              Services</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                value="Rooftop"
+                onchange="fetchProducts()"
+              />
+              Rooftop</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                value="Floating"
+                onchange="fetchProducts()"
+              />
+              Floating</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                value="Ground"
+                onchange="fetchProducts()"
+              />
+              Ground</label
+            >
+          </div>
+          <!-- Price Range Filter: Min and max price inputs -->
+          <div class="dropdown-row">
+            <span class="dropdown-label">Price Range:</span>
+            <input
+              type="number"
+              id="priceMin"
+              placeholder="Min"
+              oninput="debounceSearch()"
+            />
+            <span> - </span>
+            <input
+              type="number"
+              id="priceMax"
+              placeholder="Max"
+              oninput="debounceSearch()"
+            />
+          </div>
         </div>
-        <!-- No Results Message: Shown when search returns no products -->
-        <p id="noResults" style="display:none; text-align:center; color:#485935; margin-top:40px;">No products found.</p>
+
+        <!-- Active Filter Tags: Visual display of applied filters with removal option -->
+        <div class="filter-tags" id="filterTags"></div>
+      </div>
+
+      <!-- Product Grid: Displays search results in card layout with product detail links -->
+      <div class="product-grid" id="productGrid">
+        <p style="text-align: center; color: #485935">Loading products...</p>
+      </div>
+      <!-- No Results Message: Shown when search returns no products -->
+      <p
+        id="noResults"
+        style="
+          display: none;
+          text-align: center;
+          color: #485935;
+          margin-top: 40px;
+        "
+      >
+        No products found.
+      </p>
     </main>
 
     <!-- Footer: Contact information -->
     <footer>
-        <h3>Contact us</h3>
-        <section class="footer-content">
-            <p>Email: ARAIMAIRUSolarSolution@gmail.com</p>
-            <p>Tel: 099-999-9999</p>
-        </section>
+      <h3>Contact us</h3>
+      <section class="footer-content">
+        <p>Email: ARAIMAIRUSolarSolution@gmail.com</p>
+        <p>Tel: 099-999-9999</p>
+      </section>
     </footer>
 
     <!-- Script: Product search, filtering, and data rendering for customer view -->
     <script>
-        const API_BASE = 'http://localhost:3000';
-        let debounceTimer = null;
+      const API_BASE =
+        "https://six82-projectphase2-68-section2-group01.onrender.com";
+      let debounceTimer = null;
 
-        // ========== Toggle Filter Dropdown ==========
-        // PURPOSE: Show/hide advanced filter options dropdown
-        function toggleDropdown() {
-            const dd = document.getElementById('searchDropdown');
-            dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+      // ========== Toggle Filter Dropdown ==========
+      // PURPOSE: Show/hide advanced filter options dropdown
+      function toggleDropdown() {
+        const dd = document.getElementById("searchDropdown");
+        dd.style.display = dd.style.display === "block" ? "none" : "block";
+      }
+
+      // ========== Debounced Search ==========
+      // PURPOSE: Delay search execution to prevent excessive API calls during rapid typing
+      // TIMING: 400ms delay before executing fetchProducts()
+      function debounceSearch() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(fetchProducts, 400);
+      }
+
+      // ========== Fetch Products with Filters ==========
+      // PURPOSE: Retrieve filtered products from backend API based on search criteria
+      // FILTERS:
+      //   - Product name (text search)
+      //   - Product type (multiple selection)
+      //   - Price range (min/max)
+      // PROCESS:
+      //   1. Collect all filter values from form inputs
+      //   2. Build query parameters from non-empty filters
+      //   3. Send GET request to /products endpoint with parameters
+      //   4. Render product grid with results
+      //   5. Display filter tags for active filters
+      async function fetchProducts() {
+        // Retrieve search and filter values
+        const name = document.getElementById("searchInput").value.trim();
+        const minPrice = document.getElementById("priceMin").value;
+        const maxPrice = document.getElementById("priceMax").value;
+        const types = Array.from(
+          document.querySelectorAll(
+            ".search-dropdown input[type=checkbox]:checked",
+          ),
+        ).map((c) => c.value);
+
+        // Build query parameters from filter values
+        const params = new URLSearchParams();
+        if (name) params.append("name", name);
+        if (types.length) params.append("type", types.join(","));
+        if (minPrice) params.append("minPrice", minPrice);
+        if (maxPrice) params.append("maxPrice", maxPrice);
+
+        // Show loading state
+        const grid = document.getElementById("productGrid");
+        grid.innerHTML =
+          '<p style="text-align:center; color:#485935;">Loading...</p>';
+
+        try {
+          // Send GET request with filter parameters
+          const res = await fetch(`${API_BASE}/products?${params.toString()}`);
+          const data = await res.json();
+          renderProducts(data.data || []);
+          renderTags(name, types, minPrice, maxPrice);
+        } catch (err) {
+          grid.innerHTML =
+            '<p style="text-align:center; color:red;">Failed to load products. Is the backend running?</p>';
         }
+      }
 
-        // ========== Debounced Search ==========
-        // PURPOSE: Delay search execution to prevent excessive API calls during rapid typing
-        // TIMING: 400ms delay before executing fetchProducts()
-        function debounceSearch() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(fetchProducts, 400);
+      // ========== Render Product Grid ==========
+      // PURPOSE: Display products in clickable card grid format linking to product details
+      // PARAMS: products - array of product objects from API
+      // FEATURES:
+      //   - Card layout with product image, name, type, price
+      //   - Each card links to product-details page with product ID
+      //   - Visual styling for unavailable products (faded image + badge)
+      //   - No results message when products array is empty
+      function renderProducts(products) {
+        const grid = document.getElementById("productGrid");
+        const noResults = document.getElementById("noResults");
+
+        // Handle empty results
+        if (!products.length) {
+          grid.innerHTML = "";
+          noResults.style.display = "block";
+          return;
         }
+        noResults.style.display = "none";
 
-        // ========== Fetch Products with Filters ==========
-        // PURPOSE: Retrieve filtered products from backend API based on search criteria
-        // FILTERS:
-        //   - Product name (text search)
-        //   - Product type (multiple selection)
-        //   - Price range (min/max)
-        // PROCESS:
-        //   1. Collect all filter values from form inputs
-        //   2. Build query parameters from non-empty filters
-        //   3. Send GET request to /products endpoint with parameters
-        //   4. Render product grid with results
-        //   5. Display filter tags for active filters
-        async function fetchProducts() {
-            // Retrieve search and filter values
-            const name     = document.getElementById('searchInput').value.trim();
-            const minPrice = document.getElementById('priceMin').value;
-            const maxPrice = document.getElementById('priceMax').value;
-            const types    = Array.from(document.querySelectorAll('.search-dropdown input[type=checkbox]:checked')).map(c => c.value);
-
-            // Build query parameters from filter values
-            const params = new URLSearchParams();
-            if (name)         params.append('name', name);
-            if (types.length) params.append('type', types.join(','));
-            if (minPrice)     params.append('minPrice', minPrice);
-            if (maxPrice)     params.append('maxPrice', maxPrice);
-
-            // Show loading state
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '<p style="text-align:center; color:#485935;">Loading...</p>';
-
-            try {
-                // Send GET request with filter parameters
-                const res  = await fetch(`${API_BASE}/products?${params.toString()}`);
-                const data = await res.json();
-                renderProducts(data.data || []);
-                renderTags(name, types, minPrice, maxPrice);
-            } catch (err) {
-                grid.innerHTML = '<p style="text-align:center; color:red;">Failed to load products. Is the backend running?</p>';
-            }
-        }
-
-        // ========== Render Product Grid ==========
-        // PURPOSE: Display products in clickable card grid format linking to product details
-        // PARAMS: products - array of product objects from API
-        // FEATURES:
-        //   - Card layout with product image, name, type, price
-        //   - Each card links to product-details page with product ID
-        //   - Visual styling for unavailable products (faded image + badge)
-        //   - No results message when products array is empty
-        function renderProducts(products) {
-            const grid = document.getElementById('productGrid');
-            const noResults = document.getElementById('noResults');
-
-            // Handle empty results
-            if (!products.length) {
-                grid.innerHTML = '';
-                noResults.style.display = 'block';
-                return;
-            }
-            noResults.style.display = 'none';
-
-            // Build clickable product cards HTML
-            grid.innerHTML = products.map(p => {
-                const available = p.status == 1;
-                return `
+        // Build clickable product cards HTML
+        grid.innerHTML = products
+          .map((p) => {
+            const available = p.status == 1;
+            return `
                 <!-- Product Card: Clickable link to product details page -->
-                <a href="/product-details?id=${p.ProductID}" class="product-card${available ? '' : ' unavailable'}">
+                <a href="/product-details?id=${p.ProductID}" class="product-card${available ? "" : " unavailable"}">
                     <!-- Product Image: Faded with "Unavailable" badge if out of stock -->
                     <div class="product-img-wrapper product-img-box">
-                        <img src="${p.image_url || '/images/profile-pic.svg'}" alt="${p.name}">
+                        <img src="${p.image_url || "/images/profile-pic.svg"}" alt="${p.name}">
                         <span class="unavailable-badge">Unavailable</span>
                     </div>
                     <!-- Product Information: Name, type, and price -->
@@ -216,62 +285,78 @@
                         <p><strong>Price:</strong> ฿${Number(p.price).toLocaleString()}</p>
                     </div>
                 </a>`;
-            }).join('');
-        }
+          })
+          .join("");
+      }
 
-        // ========== Render Active Filter Tags ==========
-        // PURPOSE: Display visual tags for active filters with removal capability
-        // PARAMS:
-        //   - name: Product name search filter
-        //   - types: Selected product type filters
-        //   - minPrice: Minimum price filter
-        //   - maxPrice: Maximum price filter
-        function renderTags(name, types, minPrice, maxPrice) {
-            const container = document.getElementById('filterTags');
-            container.innerHTML = '';
-            
-            // Add product name tag
-            if (name) container.appendChild(makeTag('Product Name', name, () => { 
-                document.getElementById('searchInput').value = ''; 
-                fetchProducts(); 
-            }));
-            
-            // Add product type tags
-            types.forEach(t => container.appendChild(makeTag('Product Type', t, () => {
-                document.querySelectorAll('.search-dropdown input[type=checkbox]').forEach(cb => { 
-                    if (cb.value === t) cb.checked = false; 
+      // ========== Render Active Filter Tags ==========
+      // PURPOSE: Display visual tags for active filters with removal capability
+      // PARAMS:
+      //   - name: Product name search filter
+      //   - types: Selected product type filters
+      //   - minPrice: Minimum price filter
+      //   - maxPrice: Maximum price filter
+      function renderTags(name, types, minPrice, maxPrice) {
+        const container = document.getElementById("filterTags");
+        container.innerHTML = "";
+
+        // Add product name tag
+        if (name)
+          container.appendChild(
+            makeTag("Product Name", name, () => {
+              document.getElementById("searchInput").value = "";
+              fetchProducts();
+            }),
+          );
+
+        // Add product type tags
+        types.forEach((t) =>
+          container.appendChild(
+            makeTag("Product Type", t, () => {
+              document
+                .querySelectorAll(".search-dropdown input[type=checkbox]")
+                .forEach((cb) => {
+                  if (cb.value === t) cb.checked = false;
                 });
+              fetchProducts();
+            }),
+          ),
+        );
+
+        // Add price range tag
+        if (minPrice || maxPrice) {
+          container.appendChild(
+            makeTag(
+              "Price Range",
+              `฿${minPrice || "0"} - ฿${maxPrice || "∞"}`,
+              () => {
+                document.getElementById("priceMin").value = "";
+                document.getElementById("priceMax").value = "";
                 fetchProducts();
-            })));
-            
-            // Add price range tag
-            if (minPrice || maxPrice) {
-                container.appendChild(makeTag('Price Range', `฿${minPrice || '0'} - ฿${maxPrice || '∞'}`, () => {
-                    document.getElementById('priceMin').value = '';
-                    document.getElementById('priceMax').value = '';
-                    fetchProducts();
-                }));
-            }
+              },
+            ),
+          );
         }
+      }
 
-        // ========== Create Filter Tag Element ==========
-        // PURPOSE: Build a removable filter tag with category, value, and close button
-        // PARAMS:
-        //   - category: Filter category label (e.g., "Product Type", "Price Range")
-        //   - value: Filter value to display
-        //   - onRemove: Callback function executed when tag remove button is clicked
-        // RETURNS: DOM element representing the filter tag
-        function makeTag(category, value, onRemove) {
-            const tag = document.createElement('div');
-            tag.className = 'filter-tag';
-            tag.innerHTML = `<span class="tag-label">${category}</span><span class="tag-value">${value}</span><button class="tag-remove" title="Remove">&#10005;</button>`;
-            tag.querySelector('.tag-remove').addEventListener('click', onRemove);
-            return tag;
-        }
+      // ========== Create Filter Tag Element ==========
+      // PURPOSE: Build a removable filter tag with category, value, and close button
+      // PARAMS:
+      //   - category: Filter category label (e.g., "Product Type", "Price Range")
+      //   - value: Filter value to display
+      //   - onRemove: Callback function executed when tag remove button is clicked
+      // RETURNS: DOM element representing the filter tag
+      function makeTag(category, value, onRemove) {
+        const tag = document.createElement("div");
+        tag.className = "filter-tag";
+        tag.innerHTML = `<span class="tag-label">${category}</span><span class="tag-value">${value}</span><button class="tag-remove" title="Remove">&#10005;</button>`;
+        tag.querySelector(".tag-remove").addEventListener("click", onRemove);
+        return tag;
+      }
 
-        // ========== Initialization ==========
-        // Load all available products when page loads
-        fetchProducts();
+      // ========== Initialization ==========
+      // Load all available products when page loads
+      fetchProducts();
     </script>
-</body>
+  </body>
 </html>
