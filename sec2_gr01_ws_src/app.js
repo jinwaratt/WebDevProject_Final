@@ -42,6 +42,110 @@ const upload = multer({ storage: multer.memoryStorage() })
 // HELPERS
 // ============================================================
 
+const rawDbQuery = dbConn.query.bind(dbConn)
+const transientDbErrorCodes = new Set([
+    'ECONNREFUSED',
+    'ECONNRESET',
+    'ETIMEDOUT',
+    'EPIPE',
+    'ENETDOWN',
+    'ENETUNREACH',
+    'EHOSTUNREACH',
+    'ER_CON_COUNT_ERROR',
+    'PROTOCOL_CONNECTION_LOST',
+    'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR',
+    'PROTOCOL_ENQUEUE_AFTER_QUIT',
+    'ER_SERVER_SHUTDOWN'
+])
+
+let aivenWakePromise = null
+
+function isTransientDbError(err) {
+    if (!err) return false
+
+    return transientDbErrorCodes.has(err.code)
+        || transientDbErrorCodes.has(err.errno)
+        || /connect|connection|closed|lost|refused|timeout|shutdown/i.test(err.message || '')
+}
+
+function getAivenWakeUrl() {
+    if (process.env.AIVEN_WAKE_URL) return process.env.AIVEN_WAKE_URL
+    if (process.env.AIVEN_SERVICE_START_URL) return process.env.AIVEN_SERVICE_START_URL
+
+    if (!process.env.AIVEN_PROJECT || !process.env.AIVEN_SERVICE_NAME) return null
+
+    return `https://api.aiven.io/v1/project/${encodeURIComponent(process.env.AIVEN_PROJECT)}/service/${encodeURIComponent(process.env.AIVEN_SERVICE_NAME)}/start`
+}
+
+async function wakeAivenService() {
+    const wakeUrl = getAivenWakeUrl()
+    if (!wakeUrl) return false
+
+    if (aivenWakePromise) return aivenWakePromise
+
+    const headers = {}
+    if (process.env.AIVEN_AUTH_HEADER) {
+        headers.Authorization = process.env.AIVEN_AUTH_HEADER
+    } else if (process.env.AIVEN_API_TOKEN) {
+        headers.Authorization = `Bearer ${process.env.AIVEN_API_TOKEN}`
+    }
+
+    aivenWakePromise = axios.post(wakeUrl, null, {
+        headers,
+        timeout: 10000
+    })
+        .then(() => true)
+        .catch((err) => {
+            console.error('Aiven wake-up failed:', err.message)
+            return false
+        })
+        .finally(() => {
+            aivenWakePromise = null
+        })
+
+    return aivenWakePromise
+}
+
+function queryWithWakeup(sql, values, callback) {
+    if (typeof values === 'function') {
+        callback = values
+        values = undefined
+    }
+
+    if (typeof callback !== 'function') {
+        return rawDbQuery(sql, values)
+    }
+
+    let attempt = 0
+    const maxAttempts = 3
+
+    const execute = () => {
+        rawDbQuery(sql, values, (err, results, fields) => {
+            if (!err) {
+                callback(null, results, fields)
+                return
+            }
+
+            if (attempt >= maxAttempts - 1 || !isTransientDbError(err)) {
+                callback(err, results, fields)
+                return
+            }
+
+            attempt += 1
+            const retryDelayMs = attempt === 1 ? 1500 : 3000
+
+            const wakePromise = attempt === 1 ? wakeAivenService() : Promise.resolve(false)
+            wakePromise.finally(() => {
+                setTimeout(execute, retryDelayMs)
+            })
+        })
+    }
+
+    return execute()
+}
+
+dbConn.query = queryWithWakeup
+
 // Helper: upload image buffer to ImgBB, returns the image URL
 async function uploadToImgBB(fileBuffer) {
     const base64Image = fileBuffer.toString('base64')

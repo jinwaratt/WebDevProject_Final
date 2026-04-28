@@ -3,13 +3,15 @@
 ## Extra Score
 
 ### For this project, we used the following tools:
+
 - Render: a cloud platform for deploy our frontend and web services
 - Aiven: a service providing a cloud-based MySQL database
 
 ### Changes from original code:
+
 - In app.js (web service)
 
-We changed from using createConnection() to createPool(). 
+We changed from using createConnection() to createPool().
 
 ```
 let dbConn = mysql.createPool({
@@ -50,7 +52,7 @@ HOST = "EXAMPLE_HOST"
 IMGBB_API_KEY = "EXAMPLE_IMGBB_KEY"
 ```
 
-- We changed API_BASE in javascript part in the frontend from http://localhost:8000 to  https://six82-projectphase2-68-section2-group01.onrender.com/
+- We changed API_BASE in javascript part in the frontend from http://localhost:8000 to https://six82-projectphase2-68-section2-group01.onrender.com/
 
 Note: As we are using free tier of Render, you may need to wait a few minutes for it to work properly.
 
