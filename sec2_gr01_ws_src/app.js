@@ -48,6 +48,8 @@ const transientDbErrorCodes = new Set([
     'ECONNRESET',
     'ETIMEDOUT',
     'EPIPE',
+    'ENOTFOUND',
+    'EAI_AGAIN',
     'ENETDOWN',
     'ENETUNREACH',
     'EHOSTUNREACH',
@@ -65,7 +67,7 @@ function isTransientDbError(err) {
 
     return transientDbErrorCodes.has(err.code)
         || transientDbErrorCodes.has(err.errno)
-        || /connect|connection|closed|lost|refused|timeout|shutdown/i.test(err.message || '')
+        || /connect|connection|closed|lost|refused|timeout|shutdown|getaddrinfo|notfound|dns/i.test(err.message || '')
 }
 
 function getAivenServiceUrl() {
