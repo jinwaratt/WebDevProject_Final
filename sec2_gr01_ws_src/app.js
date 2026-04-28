@@ -171,6 +171,17 @@ function writeLog(accountID, productID, action) {
     })
 }
 
+// -------------------------------------------------------
+// Testing No Criteria Search (Return All Results)
+// method: GET
+// URL: http://localhost:3000/products
+// body: none
+//
+// Testing Criteria Search (Multiple Filters)
+// method: GET
+// URL: http://localhost:3000/products?name=Solar&type=Rooftop&minPrice=10000
+// body: none
+// -------------------------------------------------------
 router.get('/products', (req, res) => {
     const { name, type, minPrice, maxPrice } = req.query
 
@@ -206,6 +217,18 @@ router.get('/products', (req, res) => {
     })
 })
 
+// -------------------------------------------------------
+// Testing GET product detail by id (Pass)
+// method: GET
+// URL: http://localhost:3000/products/PRD00001
+// body: none
+//
+// -------------------------------------------------------
+// Testing GET product product detail by id (Fail)
+// method: GET
+// URL: http://localhost:3000/products/PRD54321
+// body: none
+//
 // GET /products/:id  — single product detail
 router.get('/products/:id', (req, res) => {
     const sql = `SELECT * FROM Product WHERE ProductID = ? AND isDeleted = FALSE`
@@ -380,7 +403,25 @@ router.delete('/products/:id', (req, res) => {
 })
 
 
-
+// -------------------------------------------------------
+// Testing Administrator Login (Pass)
+// method: POST
+// URL: http://localhost:3000/login
+// body: raw JSON
+// {
+//   "username" : "somchai_super",
+//   "password" : "Passw0rd1!"
+// }
+// 
+// Testing Administrator Login (Fail)
+// method: POST
+// URL: http://localhost:3000/login
+// body: raw JSON
+// {
+//   "username" : "somchai_super",
+//   "password" : "WrongPassword123"
+// }
+// -------------------------------------------------------
 router.post('/login', (req, res) => {
     const { username, password } = req.body
 
