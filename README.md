@@ -57,7 +57,9 @@ AIVEN_API_TOKEN = "EXAMPLE_AIVEN_TOKEN"
 
 - We changed API_BASE in javascript part in the frontend from http://localhost:8000 to https://six82-projectphase2-68-section2-group01.onrender.com/
 
-Note: As we are using free tier of Render, you may need to wait a few minutes for it to work properly.
+Note:
+- As we are using free tier of Render, you may need to wait a few minutes for it to work properly.
+- The same goes to Aiven.io. If nothing show up when you look at the search page, the database is likely restarting itself. Please wait a few more minute.
 
 ---
 
