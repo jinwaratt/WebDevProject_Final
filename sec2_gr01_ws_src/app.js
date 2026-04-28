@@ -68,21 +68,22 @@ function isTransientDbError(err) {
         || /connect|connection|closed|lost|refused|timeout|shutdown/i.test(err.message || '')
 }
 
-function getAivenWakeUrl() {
-    if (process.env.AIVEN_WAKE_URL) return process.env.AIVEN_WAKE_URL
-    if (process.env.AIVEN_SERVICE_START_URL) return process.env.AIVEN_SERVICE_START_URL
+function getAivenServiceUrl() {
+    const configuredUrl =
+        process.env.AIVEN_SERVICE_URL ||
+        process.env.AIVEN_WAKE_URL ||
+        process.env.AIVEN_SERVICE_START_URL
+
+    if (configuredUrl) {
+        return configuredUrl.replace(/\/start\/?$/, '').replace(/\/$/, '')
+    }
 
     if (!process.env.AIVEN_PROJECT || !process.env.AIVEN_SERVICE_NAME) return null
 
-    return `https://api.aiven.io/v1/project/${encodeURIComponent(process.env.AIVEN_PROJECT)}/service/${encodeURIComponent(process.env.AIVEN_SERVICE_NAME)}/start`
+    return `https://api.aiven.io/v1/project/${encodeURIComponent(process.env.AIVEN_PROJECT)}/service/${encodeURIComponent(process.env.AIVEN_SERVICE_NAME)}`
 }
 
-async function wakeAivenService() {
-    const wakeUrl = getAivenWakeUrl()
-    if (!wakeUrl) return false
-
-    if (aivenWakePromise) return aivenWakePromise
-
+function getAivenHeaders() {
     const headers = {}
     if (process.env.AIVEN_AUTH_HEADER) {
         headers.Authorization = process.env.AIVEN_AUTH_HEADER
@@ -90,14 +91,88 @@ async function wakeAivenService() {
         headers.Authorization = `Bearer ${process.env.AIVEN_API_TOKEN}`
     }
 
-    aivenWakePromise = axios.post(wakeUrl, null, {
-        headers,
-        timeout: 10000
+    return headers
+}
+
+function extractAivenServiceInfo(responseData) {
+    const service = responseData?.service || responseData || {}
+
+    return {
+        state: service.state,
+        serviceType: service.service_type,
+        plan: service.plan,
+        cloud: service.cloud_name,
+        updateTime: service.update_time
+    }
+}
+
+async function getAivenServiceStatus() {
+    const serviceUrl = getAivenServiceUrl()
+    if (!serviceUrl) {
+        return {
+            ok: false,
+            configured: false,
+            message: 'Aiven service URL is not configured'
+        }
+    }
+
+    try {
+        const response = await axios.get(serviceUrl, {
+            headers: getAivenHeaders(),
+            timeout: 15000
+        })
+
+        return {
+            ok: true,
+            configured: true,
+            httpStatus: response.status,
+            service: extractAivenServiceInfo(response.data)
+        }
+    } catch (err) {
+        return {
+            ok: false,
+            configured: true,
+            httpStatus: err.response?.status,
+            message: err.response?.data?.message || err.message,
+            errors: err.response?.data?.errors
+        }
+    }
+}
+
+async function wakeAivenService() {
+    const serviceUrl = getAivenServiceUrl()
+    if (!serviceUrl) {
+        return {
+            ok: false,
+            configured: false,
+            message: 'Aiven service URL is not configured'
+        }
+    }
+
+    if (aivenWakePromise) return aivenWakePromise
+
+    aivenWakePromise = axios.put(serviceUrl, { powered: true }, {
+        headers: {
+            ...getAivenHeaders(),
+            'Content-Type': 'application/json'
+        },
+        timeout: 30000
     })
-        .then(() => true)
+        .then((response) => ({
+            ok: true,
+            configured: true,
+            httpStatus: response.status,
+            service: extractAivenServiceInfo(response.data)
+        }))
         .catch((err) => {
-            console.error('Aiven wake-up failed:', err.message)
-            return false
+            console.error('Aiven wake-up failed:', err.response?.data?.message || err.message)
+            return {
+                ok: false,
+                configured: true,
+                httpStatus: err.response?.status,
+                message: err.response?.data?.message || err.message,
+                errors: err.response?.data?.errors
+            }
         })
         .finally(() => {
             aivenWakePromise = null
@@ -134,8 +209,26 @@ function queryWithWakeup(sql, values, callback) {
             attempt += 1
             const retryDelayMs = attempt === 1 ? 1500 : 3000
 
-            const wakePromise = attempt === 1 ? wakeAivenService() : Promise.resolve(false)
-            wakePromise.finally(() => {
+            const wakePromise = attempt === 1 ? wakeAivenService() : Promise.resolve(null)
+            wakePromise.then((wakeResult) => {
+                if (wakeResult?.configured && !wakeResult.ok) {
+                    const wakeErr = new Error(`Failed to wake Aiven MySQL: ${wakeResult.message || 'unknown API error'}`)
+                    wakeErr.code = 'AIVEN_WAKE_FAILED'
+                    wakeErr.statusCode = 503
+                    callback(wakeErr)
+                    return
+                }
+
+                if (wakeResult?.ok && wakeResult.service?.state && wakeResult.service.state !== 'RUNNING') {
+                    const wakeErr = new Error(`Aiven MySQL is waking up (${wakeResult.service.state}). Try again in a few minutes.`)
+                    wakeErr.code = 'AIVEN_WAKE_IN_PROGRESS'
+                    wakeErr.statusCode = 503
+                    callback(wakeErr)
+                    return
+                }
+
+                setTimeout(execute, retryDelayMs)
+            }).catch(() => {
                 setTimeout(execute, retryDelayMs)
             })
         })
@@ -170,6 +263,57 @@ function writeLog(accountID, productID, action) {
         if (err) console.error('ProductLog error:', err.message)
     })
 }
+
+function sendDbError(res, err) {
+    return res.status(err.statusCode || 500).json({
+        success: false,
+        code: err.code,
+        message: err.message
+    })
+}
+
+router.get('/db/status', async (req, res) => {
+    const status = await getAivenServiceStatus()
+
+    if (!status.configured) {
+        return res.status(500).json({ success: false, message: status.message })
+    }
+
+    if (!status.ok) {
+        return res.status(status.httpStatus || 503).json({
+            success: false,
+            message: status.message,
+            errors: status.errors
+        })
+    }
+
+    res.json({ success: true, service: status.service })
+})
+
+router.post('/db/wake', async (req, res) => {
+    const wakeResult = await wakeAivenService()
+
+    if (!wakeResult.configured) {
+        return res.status(500).json({ success: false, message: wakeResult.message })
+    }
+
+    if (!wakeResult.ok) {
+        return res.status(wakeResult.httpStatus || 503).json({
+            success: false,
+            message: wakeResult.message,
+            errors: wakeResult.errors
+        })
+    }
+
+    const state = wakeResult.service?.state
+    res.status(state === 'RUNNING' ? 200 : 202).json({
+        success: true,
+        message: state === 'RUNNING'
+            ? 'Aiven MySQL is already running'
+            : `Aiven MySQL is waking up (${state || 'unknown state'}). Try the app again in a few minutes.`,
+        service: wakeResult.service
+    })
+})
 
 // -------------------------------------------------------
 // Testing No Criteria Search (Return All Results)
@@ -212,7 +356,7 @@ router.get('/products', (req, res) => {
     sql += ` ORDER BY status DESC`
 
     dbConn.query(sql, params, (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: err.message })
+        if (err) return sendDbError(res, err)
         res.json({ success: true, count: results.length, data: results })
     })
 })
@@ -233,7 +377,7 @@ router.get('/products', (req, res) => {
 router.get('/products/:id', (req, res) => {
     const sql = `SELECT * FROM Product WHERE ProductID = ? AND isDeleted = FALSE`
     dbConn.query(sql, [req.params.id], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: err.message })
+        if (err) return sendDbError(res, err)
         if (results.length === 0) return res.status(404).json({ success: false, message: 'Product not found' })
         res.json({ success: true, data: results[0] })
     })
@@ -291,7 +435,7 @@ router.post('/products', upload.single('image'), async (req, res) => {
         const params = [ProductID, name, type, price, description || null, image_url, parseInt(status ?? 1)]
 
         dbConn.query(sql, params, (err) => {
-            if (err) return res.status(500).json({ success: false, message: err.message })
+            if (err) return sendDbError(res, err)
             writeLog(accountID, ProductID, 1)
             res.status(201).json({ success: true, message: 'Product created successfully', ProductID, image_url })
         })
@@ -355,7 +499,7 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
         const sql = `UPDATE Product SET ${fields.join(', ')} WHERE ProductID = ?`
 
         dbConn.query(sql, params, (err, result) => {
-            if (err) return res.status(500).json({ success: false, message: err.message })
+            if (err) return sendDbError(res, err)
             if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Product not found' })
             writeLog(accountID, id, 2)
             res.json({ success: true, message: 'Product updated successfully' })
@@ -395,7 +539,7 @@ router.delete('/products/:id', (req, res) => {
 
     const sql = `UPDATE Product SET isDeleted = TRUE WHERE ProductID = ? AND isDeleted = FALSE`
     dbConn.query(sql, [id], (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: err.message })
+        if (err) return sendDbError(res, err)
         if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Product not found' })
         writeLog(accountID, id, 3)
         res.json({ success: true, message: 'Product deleted successfully' })
@@ -448,7 +592,7 @@ router.post('/login', (req, res) => {
     `
 
     dbConn.query(sql, [username], (err, results) => {
-        if (err) return res.status(500).json({ success: false, message: err.message })
+        if (err) return sendDbError(res, err)
 
         // Step 2: Check if username exists
         if (results.length === 0) {
@@ -465,7 +609,7 @@ router.post('/login', (req, res) => {
         // Step 4: Update loginLog with current timestamp
         const updateSql = `UPDATE Account SET loginLog = NOW() WHERE AccountID = ?`
         dbConn.query(updateSql, [account.AccountID], (updateErr) => {
-            if (updateErr) return res.status(500).json({ success: false, message: updateErr.message })
+            if (updateErr) return sendDbError(res, updateErr)
 
             // Step 5: Return account info (exclude password from response)
             res.json({

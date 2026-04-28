@@ -38,7 +38,7 @@ We no longer use dbConn.connect, so we comment it out.
 // })
 ```
 
-- We modified .env files to connect to Aiven database and upload them directly to Render
+- We modified .env files to connect (and restart if off) to Aiven database and upload them directly to Render
 
 ```
 PORT = 3000
@@ -50,6 +50,9 @@ DB_PORT = 11405
 HOST = "EXAMPLE_HOST"
 
 IMGBB_API_KEY = "EXAMPLE_IMGBB_KEY"
+
+AIVEN_SERVICE_URL = "https://api.aiven.io/v1/project/PROJECT_NAME/service/SERVICE_NAME"
+AIVEN_API_TOKEN = "EXAMPLE_AIVEN_TOKEN"
 ```
 
 - We changed API_BASE in javascript part in the frontend from http://localhost:8000 to https://six82-projectphase2-68-section2-group01.onrender.com/
